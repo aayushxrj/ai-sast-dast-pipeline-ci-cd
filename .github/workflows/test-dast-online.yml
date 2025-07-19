@@ -1,0 +1,36 @@
+name: Test DAST Online
+
+on:
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  zap_online:
+    name: ZAP Scan on Public Juice Shop
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          mkdir -p reports
+          docker run \
+            -v ${{ github.workspace }}/reports:/zap/reports \
+            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+              -t https://demo.owasp-juice.shop/ \
+              -r zap_report.html \
+              -J zap_report.json \
+              -z "-config globalexclude.url_list.url(0).regex=.*\\.css$ -config globalexclude.url_list.url(1).regex=.*\\.js$" || true
+
+      - name: Show Summary of Results
+        run: |
+            echo "ZAP scan complete. Summary:"
+            ls -lh reports
+            echo "==== JSON Report Preview ===="
+            head -n 30 reports/zap_report.json || true
+            echo "==== HTML Report Preview ===="
+            head -n 30 reports/zap_report.html || true
+      
+      - name: Upload ZAP Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-dast-reports
+          path: reports/

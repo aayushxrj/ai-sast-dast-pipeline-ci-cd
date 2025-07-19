@@ -1,4 +1,4 @@
-name: Test DAST Pipeline (Local with act)
+name: Test SAST Pipeline 
 
 on:
   workflow_dispatch:  # Manual run only 

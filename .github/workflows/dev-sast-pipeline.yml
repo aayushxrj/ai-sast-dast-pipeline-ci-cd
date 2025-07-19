@@ -1,4 +1,4 @@
-name: Dev Secure Pipeline
+name: Dev SAST Pipeline
 
 on:
     push:

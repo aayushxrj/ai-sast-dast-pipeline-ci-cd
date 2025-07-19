@@ -1,4 +1,4 @@
-name: Test Secure Pipeline
+name: Test SAST Pipeline
 
 # 🔁 Manual trigger only (won’t run on push/PR)
 on:

@@ -1,4 +1,4 @@
-name: DAST Scan with OWASP ZAP
+name: Dev DAST Pipeline
 
 on:
   workflow_dispatch:  # Manual trigger
