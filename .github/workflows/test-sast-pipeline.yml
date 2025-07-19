@@ -66,14 +66,6 @@ jobs:
                   --sarif \
                   --output reports/semgrep_report.sarif || true
 
-                  echo "----- Semgrep JSON Report -----"
-            if [ -s reports/semgrep_report.json ]; then
-            cat reports/semgrep_report.json
-            else
-            echo "No issues or empty Semgrep report"
-            fi
-
-
     #   - name: Upload Semgrep SARIF to GitHub Security tab
     #     uses: github/codeql-action/upload-sarif@v3
     #     with:

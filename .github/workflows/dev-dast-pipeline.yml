@@ -1,0 +1,45 @@
+name: DAST Scan with OWASP ZAP
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  zap_scan:
+    name: Run OWASP ZAP DAST Scan
+    runs-on: ubuntu-latest
+    services:
+      juice-shop:
+        image: bkimminich/juice-shop
+        ports:
+          - 3000:3000
+        options: >-
+          --health-cmd="curl --fail http://localhost:3000 || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Wait for Juice Shop to be ready
+        run: |
+          echo "Waiting for Juice Shop..."
+          until curl -s http://localhost:3000; do
+            echo "Still waiting..."
+            sleep 5
+          done
+          echo "Juice Shop is up!"
+
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          mkdir -p reports
+          docker run --network host \
+            -v ${{ github.workspace }}/reports:/zap/reports \
+            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+              -t http://localhost:3000 \
+              -r zap_report.html \
+              -J zap_report.json || true
+
+      - name: Upload ZAP Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-dast-reports
+          path: reports/

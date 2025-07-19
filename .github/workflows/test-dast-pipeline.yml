@@ -1,0 +1,49 @@
+name: Test DAST Pipeline (Local with act)
+
+on:
+  workflow_dispatch:  # Manual run only 
+
+jobs:
+  zap_dast:
+    name: Run OWASP ZAP DAST Scan (Local)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start Juice Shop Container
+        run: |
+          docker run -d --rm \
+            --name juice-shop-test \
+            -p 3000:3000 \
+            bkimminich/juice-shop
+
+      - name: Wait for Juice Shop to start
+        run: |
+          echo "Waiting for Juice Shop..."
+          for i in {1..15}; do
+            curl -s http://localhost:3000 > /dev/null && echo "Juice Shop is ready!" && exit 0
+            echo "Still waiting..."
+            sleep 5
+          done
+          echo "Juice Shop failed to start in time"
+          exit 1
+
+      - name: Run ZAP Baseline Scan
+        run: |
+          mkdir -p reports
+          docker run --rm \
+            --network host \
+            -v $(pwd)/reports:/zap/reports \
+            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+              -t http://localhost:3000 \
+              -r zap_report.html \
+              -J zap_report.json || true
+
+      - name: Show Summary of Results
+        run: |
+          echo "ZAP scan complete. Summary:"
+          ls -lh reports
+          echo "==== JSON Report Preview ===="
+          head -n 30 reports/zap_report.json || true
+          echo "==== HTML Report Preview ===="
+          head -n 30 reports/zap_report.html || true
+          
