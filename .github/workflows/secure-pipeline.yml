@@ -1,8 +1,9 @@
 name: Secure Pipeline
 
-permissions:
-  contents: read
-  security-events: write
+# # To write to the GitHub Security tab, enable write permissions.
+# permissions:
+#   contents: read
+#   security-events: write
 
 on:
     push:
@@ -18,6 +19,11 @@ on:
   
 jobs:
   sast:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+
     name: Run SAST (Bandit + Semgrep)
     runs-on: ubuntu-latest
 
@@ -34,6 +40,9 @@ jobs:
         run: |
           pip install bandit
           pip install bandit-sarif-formatter
+      
+      - name: Install Semgrep CLI
+        run: pip install semgrep
 
       - name: Run Bandit
         run: |
@@ -72,6 +81,21 @@ jobs:
       #     # baselineRef: 'main'     # (Optional) Show only new issues since 'main'
       #     args: '--json --json-output=reports/semgrep_report.json'  # Save Semgrep output as JSON for NLP/classification     
       
+      - name: Run Semgrep via CLI
+        run: |
+          mkdir -p reports
+          semgrep --config auto \
+                  --json \
+                  --output reports/semgrep_report.json \
+                  --sarif \
+                  --output reports/semgrep_report.sarif || true
+
+      - name: Upload Semgrep SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/semgrep_report.sarif
+          category: semgrep
+
       # Makes the report downloadable from the Actions tab
       - name: Upload Bandit and Semgrep reports
         uses: actions/upload-artifact@v4
