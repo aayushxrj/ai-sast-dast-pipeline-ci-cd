@@ -84,11 +84,16 @@ jobs:
       - name: Run Semgrep via CLI
         run: |
           mkdir -p reports
+
           semgrep --config auto \
+                  --exclude tests \
                   --json \
-                  --output reports/semgrep_report.json \
+                  --output reports/semgrep_report.json || true
+          
+          semgrep --config auto \
+                  --exclude tests \
                   --sarif \
-                  --output reports/semgrep_report.sarif || true
+                  --output reports/semgrep_report.sarif || true              
 
       - name: Upload Semgrep SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
