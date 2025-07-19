@@ -1,0 +1,62 @@
+name: Secure Pipeline
+
+on:
+    push:
+      branches: [ "main" ]
+  
+    # Leave this empty (i.e., pull_request:) to trigger on PRs to all branches
+    pull_request:
+      branches: [ "main" ]  # Only triggers on PRs targeting 'main'
+  
+    # Scheduled run every Friday at 12:00 PM IST (6:30 AM UTC)
+    # schedule:
+    #   - cron: '30 6 * * 5'
+  
+jobs:
+  sast:
+    name: Run SAST (Bandit + Semgrep)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Bandit and converter
+        run: |
+          pip install bandit
+          pip install bandit2sarif
+
+      - name: Run Bandit
+        run: |
+          # Create a 'reports' directory if it doesn't exist
+          mkdir -p reports
+      
+          # Run Bandit on the entire project directory (recursive)
+          # -x tests        → exclude the 'tests' folder
+          # -f json         → output the results in JSON format
+          # -o ...          → save the output to 'reports/bandit_report.json'
+          # -ll             → include low, medium, and high severity issues
+          # -iii            → show issue context lines in the report
+          bandit -r . \
+            -x tests \
+            -f json \
+            -o reports/bandit_report.json \
+            -ll -iii
+
+      - name: Convert Bandit JSON to SARIF
+        run: |
+          bandit2sarif reports/bandit_report.json > reports/bandit_report.sarif
+      
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: 'auto'            # Auto-detect language and use default rules
+          generateSarif: true       # Output results in SARIF format (Github Security Tab compatible)
+          onlyChanged: false        # Scan all files, not just changed ones
+          # baselineRef: 'main'     # (Optional) Show only new issues since 'main'
+          args: '--json --json-output=reports/semgrep_report.json'  # Save Semgrep output as JSON for NLP/classification          
