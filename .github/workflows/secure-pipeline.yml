@@ -29,7 +29,7 @@ jobs:
       - name: Install Bandit and converter
         run: |
           pip install bandit
-          pip install bandit2sarif
+          pip install bandit-sarif-formatter
 
       - name: Run Bandit
         run: |
@@ -47,11 +47,19 @@ jobs:
             -f json \
             -o reports/bandit_report.json \
             -ll -iii
+          
+          bandit -r . \
+            -x tests \
+            --format sarif \
+            --output reports/bandit_report.sarif
+            -ll -iii
 
-      - name: Convert Bandit JSON to SARIF
-        run: |
-          bandit2sarif reports/bandit_report.json > reports/bandit_report.sarif
-      
+      - name: Upload Bandit SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: reports/bandit_report.sarif
+          category: bandit
+          
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
