@@ -1,0 +1,87 @@
+name: Test Secure Pipeline
+
+# 🔁 Manual trigger only (won’t run on push/PR)
+on:
+  workflow_dispatch:  # Allows manual run from GitHub UI or locally via `act`
+
+jobs:
+  sast:
+    name: Run SAST (Bandit + Semgrep)
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read             # Needed to checkout the code
+      security-events: write     # Needed to upload SARIF to GitHub Security tab
+      actions: read              # Needed for SARIF upload in private repos
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Bandit and SARIF formatter
+        run: |
+          pip install bandit
+          pip install bandit-sarif-formatter
+
+      - name: Install Semgrep CLI
+        run: pip install semgrep
+
+      - name: Run Bandit (JSON + SARIF)
+        run: |
+          mkdir -p reports
+
+          bandit -r . \
+            -x tests \
+            -f json \
+            -o reports/bandit_report.json \
+            -ll -iii || true
+
+          bandit -r . \
+            -x tests \
+            --format sarif \
+            --output reports/bandit_report.sarif || true
+
+    #   - name: Upload Bandit SARIF to GitHub Security tab
+    #     uses: github/codeql-action/upload-sarif@v3
+    #     with:
+    #       sarif_file: reports/bandit_report.sarif
+    #       category: bandit
+
+      - name: Run Semgrep via CLI (JSON + SARIF)
+        run: |
+          mkdir -p reports
+
+          semgrep --config auto \
+                  --exclude tests \
+                  --json \
+                  --output reports/semgrep_report.json || true
+
+          semgrep --config auto \
+                  --exclude tests \
+                  --sarif \
+                  --output reports/semgrep_report.sarif || true
+
+                  echo "----- Semgrep JSON Report -----"
+            if [ -s reports/semgrep_report.json ]; then
+            cat reports/semgrep_report.json
+            else
+            echo "No issues or empty Semgrep report"
+            fi
+
+
+    #   - name: Upload Semgrep SARIF to GitHub Security tab
+    #     uses: github/codeql-action/upload-sarif@v3
+    #     with:
+    #       sarif_file: reports/semgrep_report.sarif
+    #       category: semgrep
+
+    #   - name: Upload all reports as artifacts
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: security-reports
+    #       path: reports/

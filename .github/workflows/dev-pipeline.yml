@@ -1,9 +1,4 @@
-name: Secure Pipeline
-
-# # To write to the GitHub Security tab, enable write permissions.
-# permissions:
-#   contents: read
-#   security-events: write
+name: Dev Secure Pipeline
 
 on:
     push:
@@ -72,15 +67,6 @@ jobs:
           sarif_file: reports/bandit_report.sarif
           category: bandit
           
-      # - name: Run Semgrep
-      #   uses: returntocorp/semgrep-action@v1
-      #   with:
-      #     config: 'auto'            # Auto-detect language and use default rules
-      #     generateSarif: true       # Output results in SARIF format (Github Security Tab compatible)
-      #     onlyChanged: false        # Scan all files, not just changed ones
-      #     # baselineRef: 'main'     # (Optional) Show only new issues since 'main'
-      #     args: '--json --json-output=reports/semgrep_report.json'  # Save Semgrep output as JSON for NLP/classification     
-      
       - name: Run Semgrep via CLI
         run: |
           mkdir -p reports

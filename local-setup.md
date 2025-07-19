@@ -1,0 +1,1 @@
+act -j sast -W .github/workflows/test-pipeline.yml
