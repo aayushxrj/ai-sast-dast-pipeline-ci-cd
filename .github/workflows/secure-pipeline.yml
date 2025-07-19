@@ -29,7 +29,7 @@ jobs:
       - name: Install Bandit and converter
         run: |
           pip install bandit
-          # pip install bandit-sarif-formatter
+          pip install bandit-sarif-formatter
 
       - name: Run Bandit
         run: |
@@ -46,19 +46,19 @@ jobs:
             -x tests \
             -f json \
             -o reports/bandit_report.json \
-            -ll -iii
+            -ll -iii || true
           
-          # bandit -r . \
-          #   -x tests \
-          #   --format sarif \
-          #   --output reports/bandit_report.sarif
-          #   -ll -iii
+          bandit -r . \
+            -x tests \
+            --format sarif \
+            --output reports/bandit_report.sarif
+            -ll -iii || true
 
-      # - name: Upload Bandit SARIF to GitHub Security tab
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: reports/bandit_report.sarif
-      #     category: bandit
+      - name: Upload Bandit SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: reports/bandit_report.sarif
+          category: bandit
           
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
@@ -67,4 +67,12 @@ jobs:
           generateSarif: true       # Output results in SARIF format (Github Security Tab compatible)
           onlyChanged: false        # Scan all files, not just changed ones
           # baselineRef: 'main'     # (Optional) Show only new issues since 'main'
-          args: '--json --json-output=reports/semgrep_report.json'  # Save Semgrep output as JSON for NLP/classification          
+          args: '--json --json-output=reports/semgrep_report.json'  # Save Semgrep output as JSON for NLP/classification     
+      
+      # Makes the report downloadable from the Actions tab
+      - name: Upload Bandit and Semgrep reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: reports/
+        
