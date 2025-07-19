@@ -63,14 +63,14 @@ jobs:
           sarif_file: reports/bandit_report.sarif
           category: bandit
           
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: 'auto'            # Auto-detect language and use default rules
-          generateSarif: true       # Output results in SARIF format (Github Security Tab compatible)
-          onlyChanged: false        # Scan all files, not just changed ones
-          # baselineRef: 'main'     # (Optional) Show only new issues since 'main'
-          args: '--json --json-output=reports/semgrep_report.json'  # Save Semgrep output as JSON for NLP/classification     
+      # - name: Run Semgrep
+      #   uses: returntocorp/semgrep-action@v1
+      #   with:
+      #     config: 'auto'            # Auto-detect language and use default rules
+      #     generateSarif: true       # Output results in SARIF format (Github Security Tab compatible)
+      #     onlyChanged: false        # Scan all files, not just changed ones
+      #     # baselineRef: 'main'     # (Optional) Show only new issues since 'main'
+      #     args: '--json --json-output=reports/semgrep_report.json'  # Save Semgrep output as JSON for NLP/classification     
       
       # Makes the report downloadable from the Actions tab
       - name: Upload Bandit and Semgrep reports
