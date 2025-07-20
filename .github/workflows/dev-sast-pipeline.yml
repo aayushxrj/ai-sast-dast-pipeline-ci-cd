@@ -86,6 +86,34 @@ jobs:
         with:
           sarif_file: reports/semgrep_report.sarif
           category: semgrep
+      
+      - name: Install Gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o /usr/local/bin/gitleaks
+          chmod +x /usr/local/bin/gitleaks
+
+      - name: Run Gitleaks (JSON + SARIF)
+        run: |
+          mkdir -p reports
+
+          # JSON report
+          gitleaks detect \
+            --source . \
+            --report-format json \
+            --report-path reports/gitleaks_report.json || true
+
+          # SARIF report (for GitHub Security)
+          gitleaks detect \
+            --source . \
+            --report-format sarif \
+            --report-path reports/gitleaks_report.sarif || true
+
+      - name: Upload Gitleaks SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/gitleaks_report.sarif
+          category: gitleaks
+
 
       # Makes the report downloadable from the Actions tab
       - name: Upload Bandit and Semgrep reports
