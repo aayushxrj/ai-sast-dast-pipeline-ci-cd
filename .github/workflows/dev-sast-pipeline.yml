@@ -101,12 +101,14 @@ jobs:
           # JSON report
           gitleaks detect \
             --source . \
+            --no-git \
             --report-format json \
             --report-path reports/gitleaks_report.json || true
 
           # SARIF report (for GitHub Security)
           gitleaks detect \
             --source . \
+            --no-git \
             --report-format sarif \
             --report-path reports/gitleaks_report.sarif || true
 
