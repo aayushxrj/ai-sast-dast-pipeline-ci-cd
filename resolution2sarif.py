@@ -1,7 +1,6 @@
 import json
 import uuid
 
-# Load your Gemini-enriched issues
 with open("reports/resolution.json", encoding="utf-8") as f:
     issues = json.load(f)["issues"]
 

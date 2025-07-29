@@ -130,4 +130,27 @@ jobs:
         with:
           name: security-reports
           path: reports/
-        
+              
+      
+      - name: Combine SAST JSON reports
+        run: python combine_reports.py
+
+      - name: Deduplicate issues
+        run: python deduplicate_reports.py
+
+      - name: Install dotenv and google-generativeai 
+        run: pip install google-generativeai dotenv
+
+      - name: Generate LLM resolutions
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python get_resolutions.py
+
+      - name: Convert to SARIF
+        run: python resolution2sarif.py
+
+      - name: Upload final_report SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/final_report.sarif
+          category: ai-sast-dast-pipeline
