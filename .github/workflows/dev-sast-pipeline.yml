@@ -68,7 +68,9 @@ jobs:
           category: bandit
       
       - name: Login to Semgrep
-        run: semgrep login ${{ secrets.SEMGREP_APP_TOKEN }}
+        run: semgrep login
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
       - name: Run Semgrep via CLI
         run: |
