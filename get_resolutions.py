@@ -18,9 +18,16 @@ for issue in issues:
         "file": issue["file"],
         "start_line": issue["start_line"],
         "end_line": issue["end_line"],
+        "start_column": issue.get("start_column"),
+        "end_column": issue.get("end_column"),
         "rule_id": issue["rule_id"],
         "message": issue["message"],
         "code": issue["code"],
+        "level": issue.get("level"),
+        "cwe": issue.get("cwe"),
+        "source_url": issue.get("source_url"),
+        "confidence": issue.get("confidence"),
+        "tool": issue.get("tool"),
         "resolution": resolution
     })
 
