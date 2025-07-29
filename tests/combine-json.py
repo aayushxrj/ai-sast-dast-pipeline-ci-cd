@@ -5,20 +5,43 @@ def load_json(path):
     with open(path) as f:
         return json.load(f)
 
+def get_standard_level(tool, severity):
+    severity = severity.upper()
+    if tool == "bandit":
+        return {
+            "HIGH": "error",
+            "MEDIUM": "warning",
+            "LOW": "note"
+        }.get(severity, "warning")
+    elif tool == "semgrep":
+        return {
+            "ERROR": "error",
+            "WARNING": "warning",
+            "INFO": "note"
+        }.get(severity, "warning")
+    elif tool == "gitleaks":
+        return "error"
+    return "warning"
+
 bandit_data = load_json("reports/bandit_report.json")
 semgrep_data = load_json("reports/semgrep_report.json")
 gitleaks_data = load_json("reports/gitleaks_report.json")
 
 combined_issues = []
 
-# Bandit normalization
+# Bandit
 for item in bandit_data.get("results", []):
+    start_line = item["line_number"]
+    end_line = max(item.get("line_range", [start_line]))
     combined_issues.append({
         "tool": "bandit",
         "file": item["filename"],
-        "line": item["line_number"],
-        "column": item.get("col_offset", 0),
+        "start_line": start_line,
+        "end_line": end_line,
+        "start_column": item.get("col_offset", 0),
+        "end_column": item.get("col_offset", 0),
         "severity": item["issue_severity"],
+        "level": get_standard_level("bandit", item["issue_severity"]),
         "confidence": item["issue_confidence"],
         "rule_id": item["test_id"],
         "message": item["issue_text"],
@@ -27,30 +50,41 @@ for item in bandit_data.get("results", []):
         "code": item.get("code", "")
     })
 
-# Semgrep normalization
+# Semgrep
 for item in semgrep_data.get("results", []):
+    start = item.get("start", {})
+    end = item.get("end", {})
+    extra = item.get("extra", {})
+    metadata = extra.get("metadata", {})
+
     combined_issues.append({
         "tool": "semgrep",
         "file": item["path"],
-        "line": item["start"]["line"],
-        "column": item["start"]["col"],
-        "severity": item["extra"].get("severity", "UNKNOWN"),
-        "confidence": item["extra"].get("metadata", {}).get("confidence", ""),
+        "start_line": start.get("line", 0),
+        "end_line": end.get("line", start.get("line", 0)),
+        "start_column": start.get("col", 0),
+        "end_column": end.get("col", start.get("col", 0)),
+        "severity": extra.get("severity", "UNKNOWN"),
+        "level": get_standard_level("semgrep", extra.get("severity", "UNKNOWN")),
+        "confidence": metadata.get("confidence", ""),
         "rule_id": item["check_id"],
-        "message": item["extra"]["message"],
-        "cwe": item["extra"].get("metadata", {}).get("cwe", [""])[0],
-        "source_url": item["extra"].get("metadata", {}).get("source", ""),
-        "code": None  # Semgrep doesn't always return the code snippet
+        "message": extra.get("message", ""),
+        "cwe": metadata.get("cwe", [""])[0],
+        "source_url": metadata.get("source", ""),
+        "code": None  # Semgrep doesn't always return this
     })
 
-# Gitleaks normalization
+# Gitleaks
 for item in gitleaks_data:
     combined_issues.append({
         "tool": "gitleaks",
         "file": item["File"],
-        "line": item["StartLine"],
-        "column": item["StartColumn"],
+        "start_line": item["StartLine"],
+        "end_line": item["EndLine"],
+        "start_column": item["StartColumn"],
+        "end_column": item["EndColumn"],
         "severity": "HIGH",
+        "level": get_standard_level("gitleaks", "HIGH"),
         "confidence": "HIGH",
         "rule_id": item["RuleID"],
         "message": item["Description"],
@@ -59,9 +93,9 @@ for item in gitleaks_data:
         "code": item["Match"]
     })
 
-# Output
+# Save output
 Path("reports").mkdir(exist_ok=True)
 with open("reports/combined_issues.json", "w") as f:
     json.dump({"issues": combined_issues}, f, indent=2)
 
-print(f"Combined {len(combined_issues)} issues into reports/combined_issues.json")
+print(f"✅ Combined {len(combined_issues)} issues into reports/combined_issues.json")

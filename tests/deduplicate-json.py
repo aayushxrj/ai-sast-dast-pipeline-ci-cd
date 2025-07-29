@@ -1,57 +1,44 @@
 import json
-import hashlib
+from pathlib import Path
+
+INPUT_FILE = "reports/combined_issues.json"
+OUTPUT_FILE = "reports/deduplicated_issues.json"
 
 def load_issues(path):
-    with open(path, 'r') as f:
-        data = json.load(f)
-        if isinstance(data, dict) and "issues" in data:
-            return data["issues"]
-        return data
-
-def save_issues(path, issues):
-    with open(path, 'w') as f:
-        json.dump(issues, f, indent=2)
-
-def issue_signature(issue):
-    """
-    Generate a hashable signature based on the core content of the issue.
-    This helps detect duplicates even from different tools.
-    """
-    fields = [
-        issue.get("path", ""),
-        str(issue.get("start", {}).get("line", "")),
-        issue.get("check_id", ""),
-        issue.get("extra", {}).get("message", ""),
-        issue.get("extra", {}).get("lines", ""),
-    ]
-    fingerprint = "||".join(fields).strip()
-    return hashlib.md5(fingerprint.encode()).hexdigest()
+    with open(path) as f:
+        return json.load(f).get("issues", [])
 
 def deduplicate(issues):
     seen = set()
-    unique_issues = []
+    deduped = []
 
     for issue in issues:
-        sig = issue_signature(issue)
-        if sig not in seen:
-            seen.add(sig)
-            unique_issues.append(issue)
+        key = (
+            # issue["file"],
+            issue["startLine"],
+            issue["endLine"],
+            # issue["rule_id"]
+        )
+        if key not in seen:
+            seen.add(key)
+            deduped.append(issue)
+    return deduped
 
-    return unique_issues
+def save_issues(path, issues):
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump({"issues": issues}, f, indent=2)
 
 def main():
-    input_path = "reports/combined_issues.json"
-    output_path = "reports/deduplicated_issues.json"
+    print(f"🔄 Loading issues from: {INPUT_FILE}")
+    all_issues = load_issues(INPUT_FILE)
+    print(f"📊 Total issues before deduplication: {len(all_issues)}")
 
-    print(f"🔄 Loading issues from: {input_path}")
-    combined = load_issues(input_path)
+    unique_issues = deduplicate(all_issues)
+    print(f"✅ Unique issues after deduplication: {len(unique_issues)}")
 
-    print(f"📊 Total issues before deduplication: {len(combined)}")
-    deduped = deduplicate(combined)
-    print(f"✅ Unique issues after deduplication: {len(deduped)}")
-
-    print(f"💾 Saving deduplicated issues to: {output_path}")
-    save_issues(output_path, deduped)
+    save_issues(OUTPUT_FILE, unique_issues)
+    print(f"💾 Saved deduplicated issues to: {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
