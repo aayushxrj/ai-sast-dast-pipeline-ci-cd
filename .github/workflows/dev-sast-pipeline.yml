@@ -34,7 +34,7 @@ jobs:
       - name: Install Bandit and converter
         run: |
           pip install bandit
-          pip install bandit-sarif-formatter
+          # pip install bandit-sarif-formatter
       
       - name: Install Semgrep CLI
         run: pip install semgrep
@@ -56,16 +56,16 @@ jobs:
             -o reports/bandit_report.json \
             -ll -iii || true
           
-          bandit -r . \
-            -x tests \
-            --format sarif \
-            --output reports/bandit_report.sarif || true
+          # bandit -r . \
+          #   -x tests \
+          #   --format sarif \
+          #   --output reports/bandit_report.sarif || true
 
-      - name: Upload Bandit SARIF to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: reports/bandit_report.sarif
-          category: bandit
+      # - name: Upload Bandit SARIF to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: reports/bandit_report.sarif
+      #     category: bandit
           
       - name: Run Semgrep via CLI
         run: |
@@ -76,16 +76,16 @@ jobs:
                   --json \
                   --output reports/semgrep_report.json || true
           
-          semgrep --config auto \
-                  --exclude tests \
-                  --sarif \
-                  --output reports/semgrep_report.sarif || true              
+          # semgrep --config auto \
+          #         --exclude tests \
+          #         --sarif \
+          #         --output reports/semgrep_report.sarif || true              
 
-      - name: Upload Semgrep SARIF to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: reports/semgrep_report.sarif
-          category: semgrep
+      # - name: Upload Semgrep SARIF to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: reports/semgrep_report.sarif
+      #     category: semgrep
       
       - name: Install Gitleaks
         run: |
@@ -102,25 +102,26 @@ jobs:
           gitleaks detect \
             --source . \
             --no-git \
+            --exclude-paths tests \
             --report-format json \
             --report-path reports/gitleaks_report.json || true
 
-          # SARIF report (for GitHub Security)
-          gitleaks detect \
-            --source . \
-            --no-git \
-            --report-format sarif \
-            --report-path reports/gitleaks_report.sarif || true
+          # # SARIF report (for GitHub Security)
+          # gitleaks detect \
+          #   --source . \
+          #   --no-git \
+          #   --report-format sarif \
+          #   --report-path reports/gitleaks_report.sarif || true
 
-      - name: Upload Gitleaks SARIF to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: reports/gitleaks_report.sarif
-          category: gitleaks
+      # - name: Upload Gitleaks SARIF to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: reports/gitleaks_report.sarif
+      #     category: gitleaks
 
 
       # Makes the report downloadable from the Actions tab
-      - name: Upload Bandit and Semgrep reports
+      - name: Upload Bandit, Semgrep and Gitleaks reports
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
