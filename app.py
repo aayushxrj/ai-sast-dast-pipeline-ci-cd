@@ -56,6 +56,19 @@ def ssrf():
     url = request.args.get("url")
     response = requests.get(url)  # ⚠️ SSRF
     return response.text
+    
+@app.route("/os_system", methods=["GET"])
+def run_os_system():
+    command = request.args.get("command")
+    os.system(command)
+    return "Executed"
+
+@app.route("/insecure_tempfile", methods=["GET"])
+def insecure_tempfile():
+    filename = tempfile.mktemp()
+    with open(filename, "w") as f:
+        f.write("temporary data")
+    return f"Data written to {filename}"
 
 if __name__ == "__main__":
     app.run(debug=True)
