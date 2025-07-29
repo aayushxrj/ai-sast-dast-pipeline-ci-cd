@@ -7,6 +7,23 @@
       "start": { "line": 25, "col": 5, "offset": 547 },
       "end": { "line": 26, "col": 27, "offset": 605 },
       "extra": {
+        "metavars": {
+          "$F": {
+            "start": { "line": 23, "col": 5, "offset": 490 },
+            "end": { "line": 23, "col": 14, "offset": 499 },
+            "abstract_content": "dangerous"
+          },
+          "$V": {
+            "start": { "line": 25, "col": 5, "offset": 547 },
+            "end": { "line": 25, "col": 9, "offset": 551 },
+            "abstract_content": "code"
+          },
+          "$W": {
+            "start": { "line": 25, "col": 20, "offset": 562 },
+            "end": { "line": 25, "col": 24, "offset": 566 },
+            "abstract_content": "args"
+          }
+        },
         "message": "Found user data in a call to 'eval'. This is extremely dangerous because it can enable an attacker to execute arbitrary remote code on the system. Instead, refactor your code to not use 'eval' and instead use a safe library for the specific functionality you need.",
         "metadata": {
           "cwe": [
@@ -26,12 +43,141 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Code Injection"],
           "source": "https://semgrep.dev/r/python.django.security.injection.code.user-eval.user-eval",
-          "shortlink": "https://sg.run/PJDW"
+          "shortlink": "https://sg.run/PJDW",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9501,
+              "rule_id": "DbUpDQ",
+              "rv_id": 946166,
+              "url": "https://semgrep.dev/playground/r/l4Tx9EO/python.django.security.injection.code.user-eval.user-eval",
+              "version_id": "l4Tx9EO"
+            }
+          }
         },
         "severity": "WARNING",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "a4ddd9d2de6f78492e8558c0363ad7791d62c442497adc21fd25007933dfad4d9fb9c936cbe76d69c2768a83ecea463db7820e232329016c7e88c5ba8587f104_0",
+        "lines": "    code = request.args.get(\"code\")\n    return str(eval(code))  # ⚠️ Arbitrary code execution",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "python.flask.code.tainted-code-stdlib-flask.tainted-code-stdlib-flask",
+      "path": "app.py",
+      "start": { "line": 26, "col": 16, "offset": 594 },
+      "end": { "line": 26, "col": 26, "offset": 604 },
+      "extra": {
+        "metavars": {
+          "$1": {
+            "start": { "line": 1, "col": 1, "offset": 0 },
+            "end": { "line": 1, "col": 5, "offset": 4 },
+            "abstract_content": "args"
+          },
+          "$PROPERTY": {
+            "start": { "line": 25, "col": 20, "offset": 562 },
+            "end": { "line": 25, "col": 24, "offset": 566 },
+            "abstract_content": "args"
+          }
+        },
+        "message": "The application might dynamically evaluate untrusted input, which can lead to a code injection vulnerability. An attacker can execute arbitrary code, potentially gaining complete control of the system. To prevent this vulnerability, avoid executing code containing user input. If this is unavoidable, validate and sanitize the input, and use safe alternatives for evaluating user input.",
+        "metadata": {
+          "likelihood": "HIGH",
+          "impact": "HIGH",
+          "confidence": "HIGH",
+          "category": "security",
+          "subcategory": ["vuln"],
+          "cwe": [
+            "CWE-94: Improper Control of Generation of Code ('Code Injection')"
+          ],
+          "cwe2020-top25": true,
+          "cwe2022-top25": true,
+          "display-name": "Code Injection with Flask",
+          "functional-categories": [
+            "code::sink::eval::stdlib",
+            "code::sink::eval::stdlib2",
+            "code::sink::eval::stdlib3",
+            "expression-lang::sink::expression::stdlib",
+            "expression-lang::sink::expression::stdlib2",
+            "expression-lang::sink::expression::stdlib3",
+            "web::source::cookie::flask",
+            "web::source::form-data::flask",
+            "web::source::form-data::flask-wtf",
+            "web::source::form-data::wtforms",
+            "web::source::header::flask",
+            "web::source::http-body::flask",
+            "web::source::url-path-params::flask",
+            "web::source::url-query-string::flask"
+          ],
+          "owasp": ["A03:2021 - Injection"],
+          "references": [
+            "https://owasp.org/Top10/A03_2021-Injection",
+            "https://www.stackhawk.com/blog/command-injection-python/"
+          ],
+          "technology": [
+            "flask",
+            "flask-wtf",
+            "stdlib",
+            "stdlib2",
+            "stdlib3",
+            "web",
+            "wtforms"
+          ],
+          "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+          "vulnerability_class": ["Code Injection"],
+          "source": "https://semgrep.dev/r/python.flask.code.tainted-code-stdlib-flask.tainted-code-stdlib-flask",
+          "shortlink": "https://sg.run/RewXY",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "pro_rules",
+              "r_id": 116505,
+              "rule_id": "WAUW7yw",
+              "rv_id": 1042227,
+              "url": "https://semgrep.dev/playground/r/0bTlpKW/python.flask.code.tainted-code-stdlib-flask.tainted-code-stdlib-flask",
+              "version_id": "0bTlpKW"
+            }
+          }
+        },
+        "severity": "CRITICAL",
+        "fingerprint": "b52d6385dbe24049fc13496d9370d872588394b713dc95d263f4aab852ff032125aa0048bb48769f0052c1fdbfd3e46ef3c2e11d82abc67fd1cc3640a8054b11_0",
+        "lines": "    return str(eval(code))  # ⚠️ Arbitrary code execution",
+        "is_ignored": false,
+        "validation_state": "NO_VALIDATOR",
+        "dataflow_trace": {
+          "taint_source": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 25, "col": 12, "offset": 554 },
+                "end": { "line": 25, "col": 36, "offset": 578 }
+              },
+              "request.args.get(\"code\")"
+            ]
+          ],
+          "intermediate_vars": [
+            {
+              "location": {
+                "path": "app.py",
+                "start": { "line": 25, "col": 5, "offset": 547 },
+                "end": { "line": 25, "col": 9, "offset": 551 }
+              },
+              "content": "code"
+            }
+          ],
+          "taint_sink": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 26, "col": 16, "offset": 594 },
+                "end": { "line": 26, "col": 26, "offset": 604 }
+              },
+              "eval(code)"
+            ]
+          ]
+        },
         "engine_kind": "OSS"
       }
     },
@@ -41,6 +187,18 @@
       "start": { "line": 26, "col": 16, "offset": 594 },
       "end": { "line": 26, "col": 26, "offset": 604 },
       "extra": {
+        "metavars": {
+          "$INTERM": {
+            "start": { "line": 25, "col": 5, "offset": 547 },
+            "end": { "line": 25, "col": 9, "offset": 551 },
+            "abstract_content": "code"
+          },
+          "$W": {
+            "start": { "line": 25, "col": 20, "offset": 562 },
+            "end": { "line": 25, "col": 24, "offset": 566 },
+            "abstract_content": "args"
+          }
+        },
         "message": "Detected user data flowing into eval. This is code injection and should be avoided.",
         "metadata": {
           "cwe": [
@@ -59,11 +217,22 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Code Injection"],
           "source": "https://semgrep.dev/r/python.flask.security.injection.user-eval.eval-injection",
-          "shortlink": "https://sg.run/5QpX"
+          "shortlink": "https://sg.run/5QpX",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9547,
+              "rule_id": "0oU54W",
+              "rv_id": 946230,
+              "url": "https://semgrep.dev/playground/r/X0TL86A/python.flask.security.injection.user-eval.eval-injection",
+              "version_id": "X0TL86A"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "47fa9561ec58d73c03328906bc22d7f2a4480dc8196b8cea468b35637b90863a392bba1b43e336a00720b6188ce693fecebbb880285cf1b77b0d8b1b7cbfe6d2_0",
+        "lines": "    return str(eval(code))  # ⚠️ Arbitrary code execution",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -74,6 +243,7 @@
       "start": { "line": 26, "col": 16, "offset": 594 },
       "end": { "line": 26, "col": 26, "offset": 604 },
       "extra": {
+        "metavars": {},
         "message": "Detected the use of eval(). eval() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources.",
         "metadata": {
           "source-rule-url": "https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b307-eval",
@@ -97,11 +267,22 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Code Injection"],
           "source": "https://semgrep.dev/r/python.lang.security.audit.eval-detected.eval-detected",
-          "shortlink": "https://sg.run/ZvrD"
+          "shortlink": "https://sg.run/ZvrD",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9635,
+              "rule_id": "gxU149",
+              "rv_id": 946341,
+              "url": "https://semgrep.dev/playground/r/xyTqnr7/python.lang.security.audit.eval-detected.eval-detected",
+              "version_id": "xyTqnr7"
+            }
+          }
         },
         "severity": "WARNING",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "e95f6599409f76ec47e05b5a1e88b6dbda090c258f7211177488072766fb080931b8e9f4ffd7092b12e748ed839c346e515be77dbdbdc602a42a0590f6fc564e_0",
+        "lines": "    return str(eval(code))  # ⚠️ Arbitrary code execution",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -112,6 +293,13 @@
       "start": { "line": 32, "col": 12, "offset": 800 },
       "end": { "line": 32, "col": 52, "offset": 840 },
       "extra": {
+        "metavars": {
+          "$FUNC": {
+            "start": { "line": 32, "col": 23, "offset": 811 },
+            "end": { "line": 32, "col": 35, "offset": 823 },
+            "abstract_content": "check_output"
+          }
+        },
         "message": "Detected user input entering a `subprocess` call unsafely. This could result in a command injection vulnerability. An attacker could use this vulnerability to execute arbitrary commands on the host, which allows them to download malware, scan sensitive data, or run any command they wish on the server. Do not let users choose the command to run. In general, prefer to use Python API versions of system commands. If you must use subprocess, use a dictionary to allowlist a set of commands.",
         "metadata": {
           "category": "security",
@@ -132,12 +320,193 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Command Injection"],
           "source": "https://semgrep.dev/r/python.flask.security.injection.subprocess-injection.subprocess-injection",
-          "shortlink": "https://sg.run/5gW3"
+          "shortlink": "https://sg.run/5gW3",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 31147,
+              "rule_id": "8GU3qp",
+              "rv_id": 946227,
+              "url": "https://semgrep.dev/playground/r/zyTlk7Y/python.flask.security.injection.subprocess-injection.subprocess-injection",
+              "version_id": "zyTlk7Y"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "e9b6d8654930d0fb66c2f1c21e7033bffdfe37bacb9a25a116146300c4cf94b05a017985e5673e97fdc13d9b6e1ad5b51ac23c3cc52acf3bff3d6ea50d4b379f_0",
+        "lines": "    return subprocess.check_output(cmd, shell=True).decode()  # ⚠️ Shell injection",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
+        "dataflow_trace": {
+          "taint_source": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 31, "col": 11, "offset": 765 },
+                "end": { "line": 31, "col": 34, "offset": 788 }
+              },
+              "request.args.get(\"cmd\")"
+            ]
+          ],
+          "intermediate_vars": [
+            {
+              "location": {
+                "path": "app.py",
+                "start": { "line": 31, "col": 5, "offset": 759 },
+                "end": { "line": 31, "col": 8, "offset": 762 }
+              },
+              "content": "cmd"
+            }
+          ],
+          "taint_sink": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 32, "col": 12, "offset": 800 },
+                "end": { "line": 32, "col": 52, "offset": 840 }
+              },
+              "subprocess.check_output(cmd, shell=True)"
+            ]
+          ]
+        },
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "python.flask.os.tainted-os-command-stdlib-flask-secure-default.tainted-os-command-stdlib-flask-secure-default",
+      "path": "app.py",
+      "start": { "line": 32, "col": 36, "offset": 824 },
+      "end": { "line": 32, "col": 39, "offset": 827 },
+      "extra": {
+        "metavars": {
+          "$1": {
+            "start": { "line": 1, "col": 1, "offset": 0 },
+            "end": { "line": 1, "col": 5, "offset": 4 },
+            "abstract_content": "args"
+          },
+          "$PROPERTY": {
+            "start": { "line": 31, "col": 19, "offset": 773 },
+            "end": { "line": 31, "col": 23, "offset": 777 },
+            "abstract_content": "args"
+          },
+          "$FUNC": {
+            "start": { "line": 32, "col": 23, "offset": 811 },
+            "end": { "line": 32, "col": 35, "offset": 823 },
+            "abstract_content": "check_output"
+          },
+          "$CMD": {
+            "start": { "line": 32, "col": 36, "offset": 824 },
+            "end": { "line": 32, "col": 39, "offset": 827 },
+            "abstract_content": "cmd",
+            "propagated_value": {
+              "svalue_start": { "line": 31, "col": 11, "offset": 765 },
+              "svalue_end": { "line": 31, "col": 34, "offset": 788 },
+              "svalue_abstract_content": "request.args.get(\"cmd\")"
+            }
+          }
+        },
+        "message": "Untrusted input might be injected into a command executed by the application, which can lead to a command injection vulnerability. An attacker can execute arbitrary commands, potentially gaining complete control of the system. To prevent this vulnerability, avoid executing OS commands with user input. If this is unavoidable, validate and sanitize the input, and use safe methods for executing the commands. Untrusted input in a command can lead to command injection, allowing attackers to execute arbitrary commands and gain control of the system. To prevent this: 1. Avoid direct command execution: Don't run OS commands with user input directly. 2. Validate and sanitize input: Ensure input is safe by removing or escaping dangerous characters. 3. (preferred) Use safe methods: Use `subprocess.run` without `shell=True` to safely execute commands, as it doesn't call a system shell by default. If `shell=True` is necessary, properly quote and escape all input to prevent shell injection. This is a secure by default approach.",
+        "metadata": {
+          "likelihood": "MEDIUM",
+          "impact": "HIGH",
+          "confidence": "HIGH",
+          "category": "security",
+          "subcategory": ["secure default"],
+          "cwe": [
+            "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+          ],
+          "cwe2020-top25": true,
+          "cwe2021-top25": true,
+          "cwe2022-top25": true,
+          "display-name": "OS Command Injection with Flask",
+          "functional-categories": [
+            "os::sink::command::stdlib",
+            "os::sink::command::stdlib2",
+            "os::sink::command::stdlib3",
+            "os::sink::command::subprocess",
+            "web::source::cookie::flask",
+            "web::source::form-data::flask",
+            "web::source::form-data::flask-wtf",
+            "web::source::form-data::wtforms",
+            "web::source::header::flask",
+            "web::source::http-body::flask",
+            "web::source::url-path-params::flask",
+            "web::source::url-query-string::flask"
+          ],
+          "owasp": ["A01:2017 - Injection", "A03:2021 - Injection"],
+          "references": [
+            "https://docs.python.org/3/library/os.html",
+            "https://docs.python.org/3/library/subprocess.html#using-the-subprocess-module",
+            "https://owasp.org/Top10/A03_2021-Injection",
+            "https://semgrep.dev/docs/cheat-sheets/python-command-injection/",
+            "https://stackless.readthedocs.io/en/v2.7.16-slp/library/commands.html"
+          ],
+          "technology": [
+            "flask",
+            "flask-wtf",
+            "stdlib",
+            "stdlib2",
+            "stdlib3",
+            "subprocess",
+            "web",
+            "wtforms"
+          ],
+          "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+          "vulnerability_class": ["Command Injection"],
+          "source": "https://semgrep.dev/r/python.flask.os.tainted-os-command-stdlib-flask-secure-default.tainted-os-command-stdlib-flask-secure-default",
+          "shortlink": "https://sg.run/bwGOd",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "pro_rules",
+              "r_id": 139070,
+              "rule_id": "BYUXgZq",
+              "rv_id": 1042270,
+              "url": "https://semgrep.dev/playground/r/WrTQY8x/python.flask.os.tainted-os-command-stdlib-flask-secure-default.tainted-os-command-stdlib-flask-secure-default",
+              "version_id": "WrTQY8x"
+            }
+          }
+        },
+        "severity": "ERROR",
+        "fingerprint": "2f79bcce441db1827d12f66c411812c7ed3c68f8d17ace6a88153b8085a26b8205b6e344abd8a6d10ef50a8652ec1801d839972f4171cdf2c3d247d8eef5d224_0",
+        "lines": "    return subprocess.check_output(cmd, shell=True).decode()  # ⚠️ Shell injection",
+        "is_ignored": false,
+        "validation_state": "NO_VALIDATOR",
+        "dataflow_trace": {
+          "taint_source": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 31, "col": 11, "offset": 765 },
+                "end": { "line": 31, "col": 34, "offset": 788 }
+              },
+              "request.args.get(\"cmd\")"
+            ]
+          ],
+          "intermediate_vars": [
+            {
+              "location": {
+                "path": "app.py",
+                "start": { "line": 31, "col": 5, "offset": 759 },
+                "end": { "line": 31, "col": 8, "offset": 762 }
+              },
+              "content": "cmd"
+            }
+          ],
+          "taint_sink": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 32, "col": 36, "offset": 824 },
+                "end": { "line": 32, "col": 39, "offset": 827 }
+              },
+              "cmd"
+            ]
+          ]
+        },
         "engine_kind": "OSS"
       }
     },
@@ -147,6 +516,23 @@
       "start": { "line": 32, "col": 36, "offset": 824 },
       "end": { "line": 32, "col": 39, "offset": 827 },
       "extra": {
+        "metavars": {
+          "$FUNC": {
+            "start": { "line": 32, "col": 23, "offset": 811 },
+            "end": { "line": 32, "col": 35, "offset": 823 },
+            "abstract_content": "check_output"
+          },
+          "$CMD": {
+            "start": { "line": 32, "col": 36, "offset": 824 },
+            "end": { "line": 32, "col": 39, "offset": 827 },
+            "abstract_content": "cmd",
+            "propagated_value": {
+              "svalue_start": { "line": 31, "col": 11, "offset": 765 },
+              "svalue_end": { "line": 31, "col": 34, "offset": 788 },
+              "svalue_abstract_content": "request.args.get(\"cmd\")"
+            }
+          }
+        },
         "message": "Detected subprocess function 'check_output' with user controlled data. A malicious actor could leverage this to perform command injection. You may consider using 'shlex.escape()'.",
         "metadata": {
           "owasp": ["A01:2017 - Injection", "A03:2021 - Injection"],
@@ -176,12 +562,57 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Command Injection"],
           "source": "https://semgrep.dev/r/python.lang.security.dangerous-subprocess-use.dangerous-subprocess-use",
-          "shortlink": "https://sg.run/NWxp"
+          "shortlink": "https://sg.run/NWxp",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 27271,
+              "rule_id": "JDUz3R",
+              "rv_id": 946391,
+              "url": "https://semgrep.dev/playground/r/9lTy1bg/python.lang.security.dangerous-subprocess-use.dangerous-subprocess-use",
+              "version_id": "9lTy1bg"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "03994014e4729c9aa0aafea25438fd6801edf1491a08bce32b560f43dd55c1a9af76845b0bbd7cb75c43475ed7d27382ce9149c96dd366e741c24f24eeb72fbc_0",
+        "lines": "    return subprocess.check_output(cmd, shell=True).decode()  # ⚠️ Shell injection",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
+        "dataflow_trace": {
+          "taint_source": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 31, "col": 11, "offset": 765 },
+                "end": { "line": 31, "col": 34, "offset": 788 }
+              },
+              "request.args.get(\"cmd\")"
+            ]
+          ],
+          "intermediate_vars": [
+            {
+              "location": {
+                "path": "app.py",
+                "start": { "line": 31, "col": 5, "offset": 759 },
+                "end": { "line": 31, "col": 8, "offset": 762 }
+              },
+              "content": "cmd"
+            }
+          ],
+          "taint_sink": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 32, "col": 36, "offset": 824 },
+                "end": { "line": 32, "col": 39, "offset": 827 }
+              },
+              "cmd"
+            ]
+          ]
+        },
         "engine_kind": "OSS"
       }
     },
@@ -191,6 +622,18 @@
       "start": { "line": 32, "col": 47, "offset": 835 },
       "end": { "line": 32, "col": 51, "offset": 839 },
       "extra": {
+        "metavars": {
+          "$FUNC": {
+            "start": { "line": 32, "col": 23, "offset": 811 },
+            "end": { "line": 32, "col": 35, "offset": 823 },
+            "abstract_content": "check_output"
+          },
+          "$TRUE": {
+            "start": { "line": 32, "col": 47, "offset": 835 },
+            "end": { "line": 32, "col": 51, "offset": 839 },
+            "abstract_content": "True"
+          }
+        },
         "message": "Found 'subprocess' function 'check_output' with 'shell=True'. This is dangerous because this call will spawn the command using a shell process. Doing so propagates current shell settings and variables, which makes it much easier for a malicious actor to execute commands. Use 'shell=False' instead.",
         "fix": "False",
         "metadata": {
@@ -214,11 +657,22 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Command Injection"],
           "source": "https://semgrep.dev/r/python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
-          "shortlink": "https://sg.run/J92w"
+          "shortlink": "https://sg.run/J92w",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9646,
+              "rule_id": "DbUpz2",
+              "rv_id": 946382,
+              "url": "https://semgrep.dev/playground/r/YDTvReW/python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
+              "version_id": "YDTvReW"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "94aa586ac095330aacda45141fe4e5d67678548f2b962c414770d61528cb0a5cda1439c0d65a34c2f36cc9058724f7bea645bbf6c3099046038f13fe7b982df0_0",
+        "lines": "    return subprocess.check_output(cmd, shell=True).decode()  # ⚠️ Shell injection",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -229,6 +683,18 @@
       "start": { "line": 38, "col": 16, "offset": 1021 },
       "end": { "line": 38, "col": 34, "offset": 1039 },
       "extra": {
+        "metavars": {
+          "$X": {
+            "start": { "line": 35, "col": 5, "offset": 921 },
+            "end": { "line": 35, "col": 18, "offset": 934 },
+            "abstract_content": "unpickle_data"
+          },
+          "$FUNC": {
+            "start": { "line": 38, "col": 23, "offset": 1028 },
+            "end": { "line": 38, "col": 28, "offset": 1033 },
+            "abstract_content": "loads"
+          }
+        },
         "message": "Detected the use of an insecure deserialization library in a Flask route. These libraries are prone to code execution vulnerabilities. Ensure user data does not enter this function. To fix this, try to avoid serializing whole objects. Consider instead using a serializer such as JSON.",
         "metadata": {
           "owasp": [
@@ -248,11 +714,22 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Insecure Deserialization "],
           "source": "https://semgrep.dev/r/python.flask.security.insecure-deserialization.insecure-deserialization",
-          "shortlink": "https://sg.run/N45z"
+          "shortlink": "https://sg.run/N45z",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9527,
+              "rule_id": "d8UjBO",
+              "rv_id": 946232,
+              "url": "https://semgrep.dev/playground/r/1QToKqY/python.flask.security.insecure-deserialization.insecure-deserialization",
+              "version_id": "1QToKqY"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "3fc3a8e51cd6757aa5f927239dc96a8fa731b978b8c8e3cfbd4f9cd418ad53b253c2b2add44c59e2dabe8a36e282e7d593a0ac7d58c9a67541099eafb88f452d_0",
+        "lines": "    return str(pickle.loads(data))  # ⚠️ Arbitrary code execution",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -263,6 +740,13 @@
       "start": { "line": 38, "col": 16, "offset": 1021 },
       "end": { "line": 38, "col": 34, "offset": 1039 },
       "extra": {
+        "metavars": {
+          "$FUNC": {
+            "start": { "line": 38, "col": 23, "offset": 1028 },
+            "end": { "line": 38, "col": 28, "offset": 1033 },
+            "abstract_content": "loads"
+          }
+        },
         "message": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format.",
         "metadata": {
           "owasp": [
@@ -282,12 +766,159 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Insecure Deserialization "],
           "source": "https://semgrep.dev/r/python.lang.security.deserialization.pickle.avoid-pickle",
-          "shortlink": "https://sg.run/OPwB"
+          "shortlink": "https://sg.run/OPwB",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9675,
+              "rule_id": "EwU2BJ",
+              "rv_id": 946397,
+              "url": "https://semgrep.dev/playground/r/w8TKJL9/python.lang.security.deserialization.pickle.avoid-pickle",
+              "version_id": "w8TKJL9"
+            }
+          }
         },
         "severity": "WARNING",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "9447307a5d0b186a3845ee41881238ae25ec09dd6d6a5800531ec962f3845db01d3ffbd2043d452d2f4fdd22826ec4b195222a744b1245bf48be1f65fa986cbc_0",
+        "lines": "    return str(pickle.loads(data))  # ⚠️ Arbitrary code execution",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "python.flask.deserialization.tainted-pickle-flask.tainted-pickle-flask",
+      "path": "app.py",
+      "start": { "line": 38, "col": 29, "offset": 1034 },
+      "end": { "line": 38, "col": 33, "offset": 1038 },
+      "extra": {
+        "metavars": {
+          "$1": {
+            "start": { "line": 1, "col": 1, "offset": 0 },
+            "end": { "line": 1, "col": 5, "offset": 4 },
+            "abstract_content": "data"
+          },
+          "$PROPERTY": {
+            "start": { "line": 37, "col": 20, "offset": 1001 },
+            "end": { "line": 37, "col": 24, "offset": 1005 },
+            "abstract_content": "data"
+          },
+          "$PICKLE": {
+            "start": { "line": 38, "col": 16, "offset": 1021 },
+            "end": { "line": 38, "col": 22, "offset": 1027 },
+            "abstract_content": "pickle"
+          },
+          "$METHOD": {
+            "start": { "line": 38, "col": 23, "offset": 1028 },
+            "end": { "line": 38, "col": 28, "offset": 1033 },
+            "abstract_content": "loads"
+          },
+          "$SINK": {
+            "start": { "line": 38, "col": 29, "offset": 1034 },
+            "end": { "line": 38, "col": 33, "offset": 1038 },
+            "abstract_content": "data",
+            "propagated_value": {
+              "svalue_start": { "line": 37, "col": 12, "offset": 993 },
+              "svalue_end": { "line": 37, "col": 24, "offset": 1005 },
+              "svalue_abstract_content": "request.data"
+            }
+          }
+        },
+        "message": "The application may convert user-controlled data into an object, which can lead to an insecure deserialization vulnerability. An attacker can create a malicious serialized object, pass it to the application, and take advantage of the deserialization process to perform Denial-of-service (DoS), Remote code execution (RCE), or bypass access control measures. The C implementations of the `pickle` module, called `cPickle` or `_pickle`, are also considered insecure.",
+        "metadata": {
+          "likelihood": "MEDIUM",
+          "impact": "HIGH",
+          "confidence": "HIGH",
+          "category": "security",
+          "subcategory": ["vuln"],
+          "cwe": ["CWE-502: Deserialization of Untrusted Data"],
+          "cwe2020-top25": true,
+          "cwe2021-top25": true,
+          "cwe2022-top25": true,
+          "display-name": "Unsafe Deserialization in Flask",
+          "functional-categories": [
+            "deserialization::sink::load-object::lang",
+            "web::source::cookie::flask",
+            "web::source::form-data::flask",
+            "web::source::form-data::flask-wtf",
+            "web::source::form-data::wtforms",
+            "web::source::header::flask",
+            "web::source::http-body::flask",
+            "web::source::url-path-params::flask",
+            "web::source::url-query-string::flask"
+          ],
+          "owasp": [
+            "A08:2017 - Insecure Deserialization",
+            "A08:2021 - Software and Data Integrity Failures"
+          ],
+          "references": [
+            "https://davidhamann.de/2020/04/05/exploiting-python-pickle/",
+            "https://docs.python.org/3/library/pickle.html",
+            "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures",
+            "https://portswigger.net/web-security/deserialization"
+          ],
+          "technology": [
+            "deserialization",
+            "flask",
+            "flask-wtf",
+            "pickle",
+            "web",
+            "wtforms"
+          ],
+          "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+          "vulnerability_class": ["Insecure Deserialization "],
+          "source": "https://semgrep.dev/r/python.flask.deserialization.tainted-pickle-flask.tainted-pickle-flask",
+          "shortlink": "https://sg.run/3lBg",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "pro_rules",
+              "r_id": 44943,
+              "rule_id": "qNUAQe",
+              "rv_id": 1042245,
+              "url": "https://semgrep.dev/playground/r/kbTxOD3/python.flask.deserialization.tainted-pickle-flask.tainted-pickle-flask",
+              "version_id": "kbTxOD3"
+            }
+          }
+        },
+        "severity": "ERROR",
+        "fingerprint": "ddbf9b166a106755f69101ca0013fa697cb330498fd994af3a809bfab024cc045376510cce8edb89fc79ed2a6637aff036c47c4873c7ea1f0816c031918de7b6_0",
+        "lines": "    return str(pickle.loads(data))  # ⚠️ Arbitrary code execution",
+        "is_ignored": false,
+        "validation_state": "NO_VALIDATOR",
+        "dataflow_trace": {
+          "taint_source": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 37, "col": 12, "offset": 993 },
+                "end": { "line": 37, "col": 24, "offset": 1005 }
+              },
+              "request.data"
+            ]
+          ],
+          "intermediate_vars": [
+            {
+              "location": {
+                "path": "app.py",
+                "start": { "line": 37, "col": 5, "offset": 986 },
+                "end": { "line": 37, "col": 9, "offset": 990 }
+              },
+              "content": "data"
+            }
+          ],
+          "taint_sink": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 38, "col": 29, "offset": 1034 },
+                "end": { "line": 38, "col": 33, "offset": 1038 }
+              },
+              "data"
+            ]
+          ]
+        },
         "engine_kind": "OSS"
       }
     },
@@ -297,6 +928,7 @@
       "start": { "line": 44, "col": 13, "offset": 1232 },
       "end": { "line": 44, "col": 60, "offset": 1279 },
       "extra": {
+        "metavars": {},
         "message": "Detected use of the 'none' algorithm in a JWT token. The 'none' algorithm assumes the integrity of the token has already been verified. This would allow a malicious actor to forge a JWT token that will automatically be verified. Do not explicitly use the 'none' algorithm. Instead, use an algorithm such as 'HS256'.",
         "metadata": {
           "cwe": ["CWE-327: Use of a Broken or Risky Cryptographic Algorithm"],
@@ -317,11 +949,22 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Cryptographic Issues"],
           "source": "https://semgrep.dev/r/python.jwt.security.jwt-none-alg.jwt-python-none-alg",
-          "shortlink": "https://sg.run/Yvp4"
+          "shortlink": "https://sg.run/Yvp4",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9558,
+              "rule_id": "j2UvKw",
+              "rv_id": 946247,
+              "url": "https://semgrep.dev/playground/r/ExTg20L/python.jwt.security.jwt-none-alg.jwt-python-none-alg",
+              "version_id": "ExTg20L"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "d2b21bbd625d02f5321a6aeed5b1cd44d550ef2b1e99929f0ede336736c14a559e7cc27b64fb498f28089c3ed75e4ffdac728829e83fd06e6ef72ffe21e57432_0",
+        "lines": "    token = jwt.encode(payload, key=None, algorithm=\"none\")",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -332,6 +975,18 @@
       "start": { "line": 51, "col": 12, "offset": 1441 },
       "end": { "line": 51, "col": 54, "offset": 1483 },
       "extra": {
+        "metavars": {
+          "$1": {
+            "start": { "line": 1, "col": 1, "offset": 0 },
+            "end": { "line": 1, "col": 41, "offset": 40 },
+            "abstract_content": "hashlib.md5(password.encode()).hexdigest"
+          },
+          "$FUNCTION": {
+            "start": { "line": 51, "col": 12, "offset": 1441 },
+            "end": { "line": 51, "col": 52, "offset": 1481 },
+            "abstract_content": "hashlib.md5(password.encode()).hexdigest"
+          }
+        },
         "message": "It looks like MD5 is used as a password hash. MD5 is not considered a secure password hash because it can be cracked by an attacker in a short amount of time. Use a suitable password hashing function such as scrypt. You can use `hashlib.scrypt`.",
         "metadata": {
           "cwe": ["CWE-327: Use of a Broken or Risky Cryptographic Algorithm"],
@@ -356,12 +1011,48 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Cryptographic Issues"],
           "source": "https://semgrep.dev/r/python.lang.security.audit.md5-used-as-password.md5-used-as-password",
-          "shortlink": "https://sg.run/5DwD"
+          "shortlink": "https://sg.run/5DwD",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 14703,
+              "rule_id": "6JU1w1",
+              "rv_id": 946368,
+              "url": "https://semgrep.dev/playground/r/l4Tx9Rp/python.lang.security.audit.md5-used-as-password.md5-used-as-password",
+              "version_id": "l4Tx9Rp"
+            }
+          }
         },
         "severity": "WARNING",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "67df85706a9409a27c4986e1954acb4fc15255560e48e2c19f1d289300e2fcbc87859d515fa84f5d811b46a297e104641278a1c5a5ed05a97dabdf50f2610869_0",
+        "lines": "    return hashlib.md5(password.encode()).hexdigest()  # ⚠️ Weak hashing",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
+        "dataflow_trace": {
+          "taint_source": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 51, "col": 12, "offset": 1441 },
+                "end": { "line": 51, "col": 23, "offset": 1452 }
+              },
+              "hashlib.md5"
+            ]
+          ],
+          "intermediate_vars": [],
+          "taint_sink": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 51, "col": 12, "offset": 1441 },
+                "end": { "line": 51, "col": 54, "offset": 1483 }
+              },
+              "hashlib.md5(password.encode()).hexdigest()"
+            ]
+          ]
+        },
         "engine_kind": "OSS"
       }
     },
@@ -371,6 +1062,28 @@
       "start": { "line": 56, "col": 5, "offset": 1600 },
       "end": { "line": 57, "col": 33, "offset": 1662 },
       "extra": {
+        "metavars": {
+          "$FUNC": {
+            "start": { "line": 54, "col": 5, "offset": 1549 },
+            "end": { "line": 54, "col": 9, "offset": 1553 },
+            "abstract_content": "ssrf"
+          },
+          "$DATA": {
+            "start": { "line": 56, "col": 5, "offset": 1600 },
+            "end": { "line": 56, "col": 8, "offset": 1603 },
+            "abstract_content": "url"
+          },
+          "$W": {
+            "start": { "line": 56, "col": 19, "offset": 1614 },
+            "end": { "line": 56, "col": 23, "offset": 1618 },
+            "abstract_content": "args"
+          },
+          "$METHOD": {
+            "start": { "line": 57, "col": 25, "offset": 1654 },
+            "end": { "line": 57, "col": 28, "offset": 1657 },
+            "abstract_content": "get"
+          }
+        },
         "message": "Data from request object is passed to a new server-side request. This could lead to a server-side request forgery (SSRF). To mitigate, ensure that schemes and hosts are validated against an allowlist, do not forward the response to the user, and ensure proper authentication and transport-layer security in the proxied request. See https://owasp.org/www-community/attacks/Server_Side_Request_Forgery to learn more about SSRF vulnerabilities.",
         "metadata": {
           "cwe": ["CWE-918: Server-Side Request Forgery (SSRF)"],
@@ -389,11 +1102,22 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Server-Side Request Forgery (SSRF)"],
           "source": "https://semgrep.dev/r/python.django.security.injection.ssrf.ssrf-injection-requests.ssrf-injection-requests",
-          "shortlink": "https://sg.run/YvY4"
+          "shortlink": "https://sg.run/YvY4",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9514,
+              "rule_id": "j2UvEw",
+              "rv_id": 946188,
+              "url": "https://semgrep.dev/playground/r/1QToK1Y/python.django.security.injection.ssrf.ssrf-injection-requests.ssrf-injection-requests",
+              "version_id": "1QToK1Y"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "2a9141b52111b6468adb97e7314ee7a786a43591a73a18aab5d2b75774ba84fb1b47e6716f98abb3e83a212f5411690b2f8c7373394d9747a35400132b385f17_0",
+        "lines": "    url = request.args.get(\"url\")\n    response = requests.get(url)  # ⚠️ SSRF",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -404,6 +1128,23 @@
       "start": { "line": 57, "col": 16, "offset": 1645 },
       "end": { "line": 57, "col": 33, "offset": 1662 },
       "extra": {
+        "metavars": {
+          "$INTERM": {
+            "start": { "line": 56, "col": 5, "offset": 1600 },
+            "end": { "line": 56, "col": 8, "offset": 1603 },
+            "abstract_content": "url"
+          },
+          "$W": {
+            "start": { "line": 56, "col": 19, "offset": 1614 },
+            "end": { "line": 56, "col": 23, "offset": 1618 },
+            "abstract_content": "args"
+          },
+          "$FUNC": {
+            "start": { "line": 57, "col": 25, "offset": 1654 },
+            "end": { "line": 57, "col": 28, "offset": 1657 },
+            "abstract_content": "get"
+          }
+        },
         "message": "Data from request object is passed to a new server-side request. This could lead to a server-side request forgery (SSRF). To mitigate, ensure that schemes and hosts are validated against an allowlist, do not forward the response to the user, and ensure proper authentication and transport-layer security in the proxied request.",
         "metadata": {
           "cwe": ["CWE-918: Server-Side Request Forgery (SSRF)"],
@@ -422,123 +1163,183 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Server-Side Request Forgery (SSRF)"],
           "source": "https://semgrep.dev/r/python.flask.security.injection.ssrf-requests.ssrf-requests",
-          "shortlink": "https://sg.run/J9LW"
+          "shortlink": "https://sg.run/J9LW",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9546,
+              "rule_id": "WAUoRx",
+              "rv_id": 946226,
+              "url": "https://semgrep.dev/playground/r/o5TZe8r/python.flask.security.injection.ssrf-requests.ssrf-requests",
+              "version_id": "o5TZe8r"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "dd1d190c97047fa75b98fff8387744eb6481c03145eb672715412712d879bfad5cc4c1fbcfeb662e06da9fb576217fb805f32043902ec2df4074b8763da67090_0",
+        "lines": "    response = requests.get(url)  # ⚠️ SSRF",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
     },
     {
-      "check_id": "python.django.security.injection.command.command-injection-os-system.command-injection-os-system",
+      "check_id": "python.flask.net.tainted-flask-http-request-requests.tainted-flask-http-request-requests",
       "path": "app.py",
-      "start": { "line": 62, "col": 5, "offset": 1775 },
-      "end": { "line": 63, "col": 23, "offset": 1835 },
+      "start": { "line": 57, "col": 29, "offset": 1658 },
+      "end": { "line": 57, "col": 32, "offset": 1661 },
       "extra": {
-        "message": "Request data detected in os.system. This could be vulnerable to a command injection and should be avoided. If this must be done, use the 'subprocess' module instead and pass the arguments as a list. See https://owasp.org/www-community/attacks/Command_Injection for more information.",
-        "metadata": {
-          "cwe": [
-            "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
-          ],
-          "owasp": ["A01:2017 - Injection", "A03:2021 - Injection"],
-          "references": [
-            "https://owasp.org/www-community/attacks/Command_Injection"
-          ],
-          "category": "security",
-          "technology": ["django"],
-          "cwe2022-top25": true,
-          "cwe2021-top25": true,
-          "subcategory": ["vuln"],
-          "likelihood": "MEDIUM",
-          "impact": "HIGH",
-          "confidence": "MEDIUM",
-          "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
-          "vulnerability_class": ["Command Injection"],
-          "source": "https://semgrep.dev/r/python.django.security.injection.command.command-injection-os-system.command-injection-os-system",
-          "shortlink": "https://sg.run/Gen2"
-        },
-        "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
-        "validation_state": "NO_VALIDATOR",
-        "engine_kind": "OSS"
-      }
-    },
-    {
-      "check_id": "python.flask.security.injection.os-system-injection.os-system-injection",
-      "path": "app.py",
-      "start": { "line": 63, "col": 5, "offset": 1817 },
-      "end": { "line": 63, "col": 23, "offset": 1835 },
-      "extra": {
-        "message": "User data detected in os.system. This could be vulnerable to a command injection and should be avoided. If this must be done, use the 'subprocess' module instead and pass the arguments as a list.",
-        "metadata": {
-          "cwe": [
-            "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
-          ],
-          "owasp": ["A01:2017 - Injection", "A03:2021 - Injection"],
-          "references": [
-            "https://owasp.org/www-community/attacks/Command_Injection"
-          ],
-          "category": "security",
-          "technology": ["flask"],
-          "cwe2022-top25": true,
-          "cwe2021-top25": true,
-          "subcategory": ["audit"],
-          "likelihood": "MEDIUM",
-          "impact": "HIGH",
-          "confidence": "MEDIUM",
-          "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
-          "vulnerability_class": ["Command Injection"],
-          "source": "https://semgrep.dev/r/python.flask.security.injection.os-system-injection.os-system-injection",
-          "shortlink": "https://sg.run/4xzz"
-        },
-        "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
-        "validation_state": "NO_VALIDATOR",
-        "engine_kind": "OSS"
-      }
-    },
-    {
-      "check_id": "python.lang.security.dangerous-system-call.dangerous-system-call",
-      "path": "app.py",
-      "start": { "line": 63, "col": 5, "offset": 1817 },
-      "end": { "line": 63, "col": 23, "offset": 1835 },
-      "extra": {
-        "message": "Found user-controlled data used in a system call. This could allow a malicious actor to execute commands. Use the 'subprocess' module instead, which is easier to use without accidentally exposing a command injection vulnerability.",
-        "metadata": {
-          "source-rule-url": "https://bandit.readthedocs.io/en/latest/plugins/b605_start_process_with_a_shell.html",
-          "cwe": [
-            "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
-          ],
-          "owasp": ["A01:2017 - Injection", "A03:2021 - Injection"],
-          "references": [
-            "https://semgrep.dev/docs/cheat-sheets/python-command-injection/"
-          ],
-          "asvs": {
-            "control_id": "5.2.4 Dyanmic Code Execution Features",
-            "control_url": "https://github.com/OWASP/ASVS/blob/master/4.0/en/0x13-V5-Validation-Sanitization-Encoding.md#v52-sanitization-and-sandboxing-requirements",
-            "section": "V5: Validation, Sanitization and Encoding Verification Requirements",
-            "version": "4"
+        "metavars": {
+          "$1": {
+            "start": { "line": 1, "col": 1, "offset": 0 },
+            "end": { "line": 1, "col": 5, "offset": 4 },
+            "abstract_content": "args"
           },
-          "category": "security",
-          "technology": ["python"],
-          "confidence": "MEDIUM",
-          "cwe2022-top25": true,
-          "cwe2021-top25": true,
-          "subcategory": ["vuln"],
-          "likelihood": "HIGH",
+          "$PROPERTY": {
+            "start": { "line": 56, "col": 19, "offset": 1614 },
+            "end": { "line": 56, "col": 23, "offset": 1618 },
+            "abstract_content": "args"
+          },
+          "$FUNC": {
+            "start": { "line": 57, "col": 25, "offset": 1654 },
+            "end": { "line": 57, "col": 28, "offset": 1657 },
+            "abstract_content": "get"
+          },
+          "$URL": {
+            "start": { "line": 57, "col": 29, "offset": 1658 },
+            "end": { "line": 57, "col": 32, "offset": 1661 },
+            "abstract_content": "url",
+            "propagated_value": {
+              "svalue_start": { "line": 56, "col": 11, "offset": 1606 },
+              "svalue_end": { "line": 56, "col": 34, "offset": 1629 },
+              "svalue_abstract_content": "request.args.get(\"url\")"
+            }
+          }
+        },
+        "message": "Untrusted input might be used to build an HTTP request, which can lead to a Server-side request forgery (SSRF) vulnerability. SSRF allows an attacker to send crafted requests from the server side to other internal or external systems. SSRF can lead to unauthorized access to sensitive data and, in some cases, allow the attacker to control applications or systems that trust the vulnerable service. To prevent this vulnerability, avoid allowing user input to craft the base request. Instead, treat it as part of the path or query parameter and encode it appropriately. When user input is necessary to prepare the HTTP request, perform strict input validation. Additionally, whenever possible, use allowlists to only interact with expected, trusted domains.",
+        "metadata": {
+          "likelihood": "MEDIUM",
           "impact": "HIGH",
+          "confidence": "MEDIUM",
+          "category": "security",
+          "subcategory": ["vuln"],
+          "cwe": ["CWE-918: Server-Side Request Forgery (SSRF)"],
+          "cwe2021-top25": true,
+          "cwe2022-top25": true,
+          "display-name": "Server-Side Request Forgery (SSRF) with Flask",
+          "functional-categories": [
+            "net::sink::http-request::requests",
+            "web::source::cookie::flask",
+            "web::source::form-data::flask",
+            "web::source::form-data::flask-wtf",
+            "web::source::form-data::wtforms",
+            "web::source::header::flask",
+            "web::source::http-body::flask",
+            "web::source::url-path-params::flask",
+            "web::source::url-query-string::flask"
+          ],
+          "owasp": ["A10:2021 - Server-Side Request Forgery (SSRF)"],
+          "references": [
+            "https://owasp.org/Top10/A10_2021-Server-Side_Request_Forgery_%28SSRF%29"
+          ],
+          "technology": ["flask", "flask-wtf", "requests", "web", "wtforms"],
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
-          "vulnerability_class": ["Command Injection"],
-          "source": "https://semgrep.dev/r/python.lang.security.dangerous-system-call.dangerous-system-call",
-          "shortlink": "https://sg.run/k0W7"
+          "vulnerability_class": ["Server-Side Request Forgery (SSRF)"],
+          "source": "https://semgrep.dev/r/python.flask.net.tainted-flask-http-request-requests.tainted-flask-http-request-requests",
+          "shortlink": "https://sg.run/109zk",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "pro_rules",
+              "r_id": 116522,
+              "rule_id": "bwUbEzL",
+              "rv_id": 1042265,
+              "url": "https://semgrep.dev/playground/r/GxT6oqR/python.flask.net.tainted-flask-http-request-requests.tainted-flask-http-request-requests",
+              "version_id": "GxT6oqR"
+            }
+          }
         },
         "severity": "ERROR",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "44114de20268d4fb0e0c59aef993d495580c8a24a616172be4546303a89c4154e793b773d2aed4776a6533f6e240ec217fccf997cc186c86461b7c3462f44b95_0",
+        "lines": "    response = requests.get(url)  # ⚠️ SSRF",
+        "is_ignored": false,
+        "validation_state": "NO_VALIDATOR",
+        "dataflow_trace": {
+          "taint_source": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 56, "col": 11, "offset": 1606 },
+                "end": { "line": 56, "col": 34, "offset": 1629 }
+              },
+              "request.args.get(\"url\")"
+            ]
+          ],
+          "intermediate_vars": [
+            {
+              "location": {
+                "path": "app.py",
+                "start": { "line": 56, "col": 5, "offset": 1600 },
+                "end": { "line": 56, "col": 8, "offset": 1603 }
+              },
+              "content": "url"
+            }
+          ],
+          "taint_sink": [
+            "CliLoc",
+            [
+              {
+                "path": "app.py",
+                "start": { "line": 57, "col": 29, "offset": 1658 },
+                "end": { "line": 57, "col": 32, "offset": 1661 }
+              },
+              "url"
+            ]
+          ]
+        },
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "python.flask.debug.debug-flask.active-debug-code-flask",
+      "path": "app.py",
+      "start": { "line": 61, "col": 5, "offset": 1735 },
+      "end": { "line": 61, "col": 24, "offset": 1754 },
+      "extra": {
+        "metavars": {},
+        "message": "The application is running debug code or has debug mode enabled. This may expose sensitive information, like stack traces and environment variables, to attackers. It may also modify application behavior, potentially enabling attackers to bypass restrictions. To remediate this finding, ensure that the application's debug code and debug mode are disabled or removed from the production environment.",
+        "metadata": {
+          "likelihood": "LOW",
+          "impact": "MEDIUM",
+          "confidence": "HIGH",
+          "category": "security",
+          "subcategory": ["vuln"],
+          "cwe": ["CWE-489: Active Debug Code"],
+          "display-name": "Active Debug Code in Flask",
+          "functional-categories": ["debug::search::active-debug-code"],
+          "references": [
+            "https://flask.palletsprojects.com/en/3.0.x/debugging/"
+          ],
+          "technology": ["flask", "python"],
+          "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+          "vulnerability_class": ["Active Debug Code"],
+          "source": "https://semgrep.dev/r/python.flask.debug.debug-flask.active-debug-code-flask",
+          "shortlink": "https://sg.run/lBbpB",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "pro_rules",
+              "r_id": 116513,
+              "rule_id": "zdUKBnK",
+              "rv_id": 947918,
+              "url": "https://semgrep.dev/playground/r/ZRT3q9v/python.flask.debug.debug-flask.active-debug-code-flask",
+              "version_id": "ZRT3q9v"
+            }
+          }
+        },
+        "severity": "INFO",
+        "fingerprint": "6dae0772a1b32440b458d87e0cca51340604bd76de0ea5deca5133d9027cb436aabd95df2e5db8e61b40332dd0d4c67e8bca5719388acbb5b5a4e167facf2bb2_0",
+        "lines": "    app.run(debug=True)",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -546,9 +1347,21 @@
     {
       "check_id": "python.flask.security.audit.debug-enabled.debug-enabled",
       "path": "app.py",
-      "start": { "line": 74, "col": 5, "offset": 2109 },
-      "end": { "line": 74, "col": 24, "offset": 2128 },
+      "start": { "line": 61, "col": 5, "offset": 1735 },
+      "end": { "line": 61, "col": 24, "offset": 1754 },
       "extra": {
+        "metavars": {
+          "$APP": {
+            "start": { "line": 61, "col": 5, "offset": 1735 },
+            "end": { "line": 61, "col": 8, "offset": 1738 },
+            "abstract_content": "app",
+            "propagated_value": {
+              "svalue_start": { "line": 9, "col": 7, "offset": 139 },
+              "svalue_end": { "line": 9, "col": 22, "offset": 154 },
+              "svalue_abstract_content": "Flask(__name__)"
+            }
+          }
+        },
         "message": "Detected Flask app with debug=True. Do not deploy to production with this flag enabled as it will leak sensitive information. Instead, consider using Flask configuration variables or setting 'debug' using system environment variables.",
         "metadata": {
           "cwe": ["CWE-489: Active Debug Code"],
@@ -565,11 +1378,22 @@
           "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
           "vulnerability_class": ["Active Debug Code"],
           "source": "https://semgrep.dev/r/python.flask.security.audit.debug-enabled.debug-enabled",
-          "shortlink": "https://sg.run/dKrd"
+          "shortlink": "https://sg.run/dKrd",
+          "semgrep.dev": {
+            "rule": {
+              "origin": "community",
+              "r_id": 9534,
+              "rule_id": "gxU1bd",
+              "rv_id": 946206,
+              "url": "https://semgrep.dev/playground/r/8KTKjwR/python.flask.security.audit.debug-enabled.debug-enabled",
+              "version_id": "8KTKjwR"
+            }
+          }
         },
         "severity": "WARNING",
-        "fingerprint": "requires login",
-        "lines": "requires login",
+        "fingerprint": "2815cac7767db0f179d0d732747d5db89a1f1b11f9dd2966492a2764245edef355b56328bcdcf199fd5d4bbd16ced4243722a364f9be3708447ba8d6288b3fde_0",
+        "lines": "    app.run(debug=True)",
+        "is_ignored": false,
         "validation_state": "NO_VALIDATOR",
         "engine_kind": "OSS"
       }
@@ -593,6 +1417,7 @@
       "demo-yml/bandit.yml",
       "demo-yml/semgrep-basic.yml",
       "demo-yml/semgrep.yml",
+      "gemini_model.py",
       "local-setup.md",
       "reports/bandit_report.json",
       "reports/bandit_report.sarif",
@@ -602,53 +1427,54 @@
   },
   "time": {
     "rules": [],
-    "rules_parse_time": 1.4047789573669434,
+    "rules_parse_time": 10.596659898757935,
     "profiling_times": {
-      "config_time": 6.154733180999756,
-      "core_time": 2.2654764652252197,
-      "ignores_time": 0.0019769668579101562,
-      "total_time": 8.422909021377563
+      "config_time": 14.789794683456421,
+      "core_time": 13.927614212036133,
+      "ignores_time": 0.0042552947998046875,
+      "total_time": 28.722512006759644
     },
     "parsing_time": {
-      "total_time": 0.07136654853820801,
+      "total_time": 0.0485689640045166,
       "per_file_time": {
-        "mean": 0.005097610609872001,
-        "std_dev": 3.9244956476395325e-5
+        "mean": 0.00323793093363444,
+        "std_dev": 1.4262579155810171e-5
       },
       "very_slow_stats": { "time_ratio": 0.0, "count_ratio": 0.0 },
       "very_slow_files": []
     },
     "scanning_time": {
-      "total_time": 0.4562814235687256,
+      "total_time": 1.3534042835235596,
       "per_file_time": {
-        "mean": 0.008449655992013437,
-        "std_dev": 0.0004917168746984624
+        "mean": 0.023743934798658932,
+        "std_dev": 0.007636475721899658
       },
       "very_slow_stats": { "time_ratio": 0.0, "count_ratio": 0.0 },
       "very_slow_files": []
     },
     "matching_time": {
-      "total_time": 0.18347406387329102,
+      "total_time": 0.32269763946533203,
       "per_file_and_rule_time": {
-        "mean": 0.00048029859652693976,
-        "std_dev": 1.994636659066383e-6
+        "mean": 0.0006708890633374886,
+        "std_dev": 4.59722066815157e-6
       },
       "very_slow_stats": { "time_ratio": 0.0, "count_ratio": 0.0 },
       "very_slow_rules_on_files": []
     },
     "tainting_time": {
-      "total_time": 0.015319347381591797,
+      "total_time": 0.062172651290893555,
       "per_def_and_rule_time": {
-        "mean": 9.88344992360761e-5,
-        "std_dev": 5.022272448272498e-8
+        "mean": 8.85650303289082e-5,
+        "std_dev": 1.1501525288201083e-8
       },
       "very_slow_stats": { "time_ratio": 0.0, "count_ratio": 0.0 },
       "very_slow_rules_on_defs": []
     },
     "targets": [],
     "total_bytes": 0,
-    "max_memory_bytes": 1086507648
+    "max_memory_bytes": 8733450816
   },
   "engine_requested": "OSS",
+  "interfile_languages_used": [],
   "skipped_rules": []
 }

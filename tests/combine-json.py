@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 def load_json(path):
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 def get_standard_level(tool, severity):
@@ -71,7 +71,7 @@ for item in semgrep_data.get("results", []):
         "message": extra.get("message", ""),
         "cwe": metadata.get("cwe", [""])[0],
         "source_url": metadata.get("source", ""),
-        "code": None  # Semgrep doesn't always return this
+       "code": extra.get("lines", "") 
     })
 
 # Gitleaks

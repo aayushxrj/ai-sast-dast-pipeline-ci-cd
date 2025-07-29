@@ -15,8 +15,8 @@ def deduplicate(issues):
     for issue in issues:
         key = (
             # issue["file"],
-            issue["startLine"],
-            issue["endLine"],
+            issue["start_line"],
+            issue["end_line"],
             # issue["rule_id"]
         )
         if key not in seen:
