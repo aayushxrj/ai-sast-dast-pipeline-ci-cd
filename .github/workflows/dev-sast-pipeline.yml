@@ -34,7 +34,7 @@ jobs:
       - name: Install Bandit and converter
         run: |
           pip install bandit
-          # pip install bandit-sarif-formatter
+          pip install bandit-sarif-formatter
       
       - name: Install Semgrep CLI
         run: pip install semgrep
