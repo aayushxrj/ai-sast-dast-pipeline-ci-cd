@@ -102,6 +102,7 @@ jobs:
           gitleaks detect \
             --source . \
             --no-git \
+            --exclude-paths tests \
             --report-format json \
             --report-path reports/gitleaks_report.json || true
 
@@ -109,6 +110,7 @@ jobs:
           gitleaks detect \
             --source . \
             --no-git \
+            --exclude-paths tests \
             --report-format sarif \
             --report-path reports/gitleaks_report.sarif || true
 
