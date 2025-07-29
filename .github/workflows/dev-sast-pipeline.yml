@@ -67,10 +67,10 @@ jobs:
       #     sarif_file: reports/bandit_report.sarif
       #     category: bandit
       
-      - name: Login to Semgrep
-        run: semgrep login
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+      # - name: Login to Semgrep
+      #   run: semgrep login
+      #   env:
+      #     SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
       - name: Run Semgrep via CLI
         run: |
@@ -84,7 +84,9 @@ jobs:
       #     semgrep --config auto \
       #             --exclude tests \
       #             --sarif \
-      #             --output reports/semgrep_report.sarif || true              
+      #             --output reports/semgrep_report.sarif || true   
+        env:
+            SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}           
 
       # - name: Upload Semgrep SARIF to GitHub Security tab
       #   uses: github/codeql-action/upload-sarif@v3
