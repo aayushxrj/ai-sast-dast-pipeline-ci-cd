@@ -5,7 +5,8 @@ on:
       branches: [ "main" ]
   
     # Leave this empty (i.e., pull_request:) to trigger on PRs to all branches
-    pull_request:
+    # pull_request:
+    pull_request_target:
       branches: [ "main" ]  # Only triggers on PRs targeting 'main'
   
     # Scheduled run every Friday at 12:00 PM IST (6:30 AM UTC)
