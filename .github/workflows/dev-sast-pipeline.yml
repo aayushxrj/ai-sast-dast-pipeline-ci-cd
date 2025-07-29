@@ -39,13 +39,25 @@ jobs:
         if: github.event_name != 'pull_request_target'
         uses: actions/checkout@v3
 
-      - name: Get list of changed files in PR
-        id: changes
+      - name: Get changed files (push or PR)
+        id: changed-files
         run: |
-          git fetch origin ${{ github.event.pull_request.base.ref }}
-          echo "files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | paste -sd ' ' -)" >> $GITHUB_OUTPUT
-      - name: Debug changed files
-        run: echo ${{ steps.changes.outputs.files }}
+          if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            echo "Detected pull_request_target event"
+            git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
+            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+          else
+            echo "Detected push event"
+            files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          fi
+
+          echo "files=${files}" >> $GITHUB_OUTPUT
+
+      - name: Stop if no files changed
+        if: steps.changed-files.outputs.files == ''
+        run: |
+          echo "No changed files found. Skipping the scan."
+          exit 0
 
 
       - name: Set up Python
