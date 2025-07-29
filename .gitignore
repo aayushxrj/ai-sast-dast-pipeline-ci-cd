@@ -1,3 +1,4 @@
 demo-yml/
-tests/
+reports/
 .env
+__pycache__/
