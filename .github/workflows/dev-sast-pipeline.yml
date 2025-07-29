@@ -210,3 +210,13 @@ jobs:
         with:
           sarif_file: reports/final_report.sarif
           category: ai-sast-dast-pipeline
+      
+      - name: Comment on PR with LLM suggestions
+        if: github.event_name == 'pull_request_target'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          pip install requests
+          python comment_on_pr.py
