@@ -34,16 +34,7 @@ for issue in issues:
         })
         rule_ids.add(rule_id)
 
-    region = {
-        "startLine": issue["start_line"],
-        "endLine": issue["end_line"]
-    }
-    if issue.get("start_column") is not None:
-        region["startColumn"] = issue["start_column"]
-    if issue.get("end_column") is not None:
-        region["endColumn"] = issue["end_column"]
-
-    result = {
+    sarif["runs"][0]["results"].append({
         "ruleId": rule_id,
         "message": {
             "text": f"{issue['message']}\n\nGemini Suggestion: {issue['resolution']}"
@@ -52,14 +43,14 @@ for issue in issues:
             {
                 "physicalLocation": {
                     "artifactLocation": {"uri": issue["file"]},
-                    "region": region
+                    "region": {
+                        "startLine": issue["start_line"],
+                        "endLine": issue["end_line"],
+                    }
                 }
             }
         ]
-    }
-    if issue.get("level"):
-        result["level"] = issue["level"]
-    sarif["runs"][0]["results"].append(result)
+    })
 
 with open("reports/final_report.sarif", "w", encoding="utf-8") as f:
     json.dump(sarif, f, indent=2, ensure_ascii=False)
