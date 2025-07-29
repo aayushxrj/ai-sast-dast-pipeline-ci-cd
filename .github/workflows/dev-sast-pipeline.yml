@@ -74,7 +74,6 @@ jobs:
           semgrep --config auto \
                   --exclude tests \
                   --json \
-                  --include-parse-tree \
                   --output reports/semgrep_report.json || true
           
           semgrep --config auto \
@@ -103,7 +102,6 @@ jobs:
           gitleaks detect \
             --source . \
             --no-git \
-            --exclude-paths tests \
             --report-format json \
             --report-path reports/gitleaks_report.json || true
 
