@@ -38,6 +38,8 @@ jobs:
       - name: Checkout main code (for push or pull_request)
         if: github.event_name != 'pull_request_target'
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Pull full history
 
       - name: Get changed files (push or PR)
         id: changed-files
@@ -58,7 +60,6 @@ jobs:
         run: |
           echo "No changed files found. Skipping the scan."
           exit 0
-
 
       - name: Set up Python
         uses: actions/setup-python@v5
