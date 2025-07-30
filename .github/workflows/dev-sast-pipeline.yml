@@ -48,16 +48,9 @@ jobs:
         id: changed-files
         run: |
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
-            echo "🔍 Detected PR scan (pull_request_target)..."
-
-            echo "🔧 Setting up remotes"
-            git remote add fork https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-            git fetch fork ${{ github.event.pull_request.head.ref }}
-            git fetch origin ${{ github.event.pull_request.base.ref }}
-
-            echo "📏 Comparing origin/${{ github.event.pull_request.base.ref }} with fork/${{ github.event.pull_request.head.ref }}"
-            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} fork/${{ github.event.pull_request.head.ref }})
-
+            echo "🔍 Detected PR event..."
+            git fetch origin main
+            files=$(git diff --name-only origin/main ${{ github.sha }})
           else
             echo "📦 Detected push event..."
             git fetch origin
