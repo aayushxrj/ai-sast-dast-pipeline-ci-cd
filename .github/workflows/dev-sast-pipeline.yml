@@ -50,20 +50,17 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
             echo "🔍 Detected PR scan (pull_request_target)..."
+            
+            echo "📦 Fetching base branch: ${{ github.event.pull_request.base.ref }}"
+            git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
+            
+            echo "📏 Comparing base (origin/${{ github.event.pull_request.base.ref }}) with PR head commit (${{ github.event.pull_request.head.sha }})..."
+            
+            # Checkout to the head commit explicitly
+            git checkout ${{ github.event.pull_request.head.sha }}
 
-            BASE_REF="${{ github.event.pull_request.base.ref }}"   # usually 'main'
-            BASE_REPO="${{ github.event.pull_request.base.repo.full_name }}"
-            HEAD_REF="${{ github.event.pull_request.head.ref }}"
-            HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
-            HEAD_SHA="${{ github.event.pull_request.head.sha }}"   # latest PR commit
+            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.sha }})
 
-            echo "Fetching base branch: $BASE_REF from $BASE_REPO"
-            git fetch https://github.com/$BASE_REPO.git $BASE_REF:$BASE_REF
-            echo "Fetching head branch: $HEAD_REF from $HEAD_REPO"
-            git fetch https://github.com/$HEAD_REPO.git $HEAD_REF:$HEAD_REF
-
-            echo "📏 Comparing base ($BASE_REF) with PR head commit ($HEAD_REF)..."
-            files=$(git diff --name-only $BASE_REF...$HEAD_REF)
           else
             echo "📦 Detected push event..."
             files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
@@ -75,6 +72,7 @@ jobs:
           echo "files<<EOF" >> $GITHUB_OUTPUT
           echo "$files" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
 
 
       - name: Stop if no files changed
