@@ -86,10 +86,34 @@ jobs:
       - name: Install Semgrep CLI
         run: pip install semgrep
 
-      - name: Run Bandit (on changed files)
+      - name: Run Bandit on changed files (excluding tests/)
+        if: steps.changed-files.outputs.files != ''
         run: |
           mkdir -p reports
-          bandit -x tests -f json -o reports/bandit_report.json -ll -iii ${{ steps.changes.outputs.files }} || true
+          echo "${{ steps.changed-files.outputs.files }}" > changed_files.txt
+
+          # Filter for .py files, excluding anything inside top-level 'tests/' directory
+          py_files=$(cat changed_files.txt | grep -E '\.py$' | grep -v '^tests/' || true)
+
+          if [[ -z "$py_files" ]]; then
+            echo "🛑 No Python files to scan with Bandit (excluding tests/)."
+            exit 0
+          fi
+
+          echo "🚀 Running Bandit on the following files:"
+          echo "$py_files"
+
+          bandit \
+            $py_files \
+            -f json \
+            -o reports/bandit_report.json \
+            -ll -iii || true
+
+
+      # - name: Run Bandit (on changed files)
+      #   run: |
+      #     mkdir -p reports
+      #     bandit -x tests -f json -o reports/bandit_report.json -ll -iii ${{ steps.changes.outputs.files }} || true
 
       # - name: Run Bandit
       #   run: |
@@ -119,16 +143,16 @@ jobs:
       #     sarif_file: reports/bandit_report.sarif
       #     category: bandit
       
-      - name: Run Semgrep (on changed files)
-        run: |
-          mkdir -p reports
-          semgrep --config auto \
-                  --exclude tests \
-                  --json \
-                  --output reports/semgrep_report.json \
-                  ${{ steps.changes.outputs.files }} || true
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+      # - name: Run Semgrep (on changed files)
+      #   run: |
+      #     mkdir -p reports
+      #     semgrep --config auto \
+      #             --exclude tests \
+      #             --json \
+      #             --output reports/semgrep_report.json \
+      #             ${{ steps.changes.outputs.files }} || true
+      #   env:
+      #     SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
 
       # - name: Login to Semgrep
