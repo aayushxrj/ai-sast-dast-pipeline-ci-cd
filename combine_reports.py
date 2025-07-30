@@ -5,6 +5,12 @@ def load_json(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
+def safe_load_json(path, default):
+    if Path(path).exists():
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    return default
+
 def get_standard_level(tool, severity):
     severity = severity.upper()
     if tool == "bandit":
@@ -23,9 +29,9 @@ def get_standard_level(tool, severity):
         return "error"
     return "warning"
 
-bandit_data = load_json("reports/bandit_report.json")
-semgrep_data = load_json("reports/semgrep_report.json")
-gitleaks_data = load_json("reports/gitleaks_report.json")
+bandit_data = safe_load_json("reports/bandit_report.json", {})
+semgrep_data = safe_load_json("reports/semgrep_report.json", {})
+gitleaks_data = safe_load_json("reports/gitleaks_report.json", [])
 
 combined_issues = []
 
