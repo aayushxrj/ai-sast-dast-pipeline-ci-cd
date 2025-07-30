@@ -35,9 +35,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          # Fetch both base and head for diff
-          # This ensures both refs are available for git diff
 
       - name: Checkout main code (for push or pull_request)
         if: github.event_name != 'pull_request_target'
@@ -50,19 +49,18 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
             echo "🔍 Detected PR scan (pull_request_target)..."
-            
-            echo "📦 Fetching base branch: ${{ github.event.pull_request.base.ref }}"
-            git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
-            
-            echo "📏 Comparing base (origin/${{ github.event.pull_request.base.ref }}) with PR head commit (${{ github.event.pull_request.head.sha }})..."
-            
-            # Checkout to the head commit explicitly
-            git checkout ${{ github.event.pull_request.head.sha }}
 
-            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.sha }})
+            echo "🔧 Setting up remotes"
+            git remote add fork https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+            git fetch fork ${{ github.event.pull_request.head.ref }}
+            git fetch origin ${{ github.event.pull_request.base.ref }}
+
+            echo "📏 Comparing origin/${{ github.event.pull_request.base.ref }} with fork/${{ github.event.pull_request.head.ref }}"
+            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} fork/${{ github.event.pull_request.head.ref }})
 
           else
             echo "📦 Detected push event..."
+            git fetch origin
             files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           fi
 
