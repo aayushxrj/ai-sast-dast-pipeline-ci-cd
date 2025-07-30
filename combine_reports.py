@@ -6,7 +6,8 @@ def load_json(path):
         return json.load(f)
 
 def safe_load_json(path, default):
-    if Path(path).exists():
+    p = Path(path)
+    if p.exists() and p.stat().st_size > 0:
         with open(path, encoding="utf-8") as f:
             return json.load(f)
     return default
