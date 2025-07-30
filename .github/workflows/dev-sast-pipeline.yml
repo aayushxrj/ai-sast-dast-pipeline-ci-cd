@@ -154,30 +154,30 @@ jobs:
       #   env:
       #     SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
-      # - name: Run Semgrep on changed files (excluding tests/)
-      #   if: steps.changed-files.outputs.files != ''
-      #   env:
-      #     SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-      #   run: |
-      #     mkdir -p reports
-      #     echo "${{ steps.changed-files.outputs.files }}" > changed_files.txt
+      - name: Run Semgrep on changed files (excluding tests/)
+        if: steps.changed-files.outputs.files != ''
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        run: |
+          mkdir -p reports
+          echo "${{ steps.changed-files.outputs.files }}" > changed_files.txt
 
-      #     # Filter for files that are not in 'tests/' and exist (in case of renames/deletes)
-      #     valid_files=$(cat changed_files.txt | grep -v '^tests/' | xargs -r ls 2>/dev/null || true)
+          # Filter for files that are not in 'tests/' and exist (in case of renames/deletes)
+          valid_files=$(cat changed_files.txt | grep -v '^tests/' | xargs -r ls 2>/dev/null || true)
 
-      #     if [[ -z "$valid_files" ]]; then
-      #       echo "🛑 No valid files to scan with Semgrep (excluding tests/)."
-      #       exit 0
-      #     fi
+          if [[ -z "$valid_files" ]]; then
+            echo "🛑 No valid files to scan with Semgrep (excluding tests/)."
+            exit 0
+          fi
 
-      #     echo "🚀 Running Semgrep on:"
-      #     echo "$valid_files"
+          echo "🚀 Running Semgrep on:"
+          echo "$valid_files"
 
-      #     semgrep \
-      #       --config auto \
-      #       --json \
-      #       --output reports/semgrep_report.json \
-      #       $valid_files || true
+          semgrep \
+            --config auto \
+            --json \
+            --output reports/semgrep_report.json \
+            $valid_files || true
 
 
       # - name: Login to Semgrep
@@ -214,16 +214,16 @@ jobs:
           sudo mv gitleaks /usr/local/bin/
           gitleaks version
 
-      # - name: Run Gitleaks (JSON + SARIF)
-      #   run: |
-      #     mkdir -p reports
+      - name: Run Gitleaks (JSON + SARIF)
+        run: |
+          mkdir -p reports
 
-      #     # JSON report
-      #     gitleaks detect \
-      #       --source . \
-      #       --no-git \
-      #       --report-format json \
-      #       --report-path reports/gitleaks_report.json || true
+          # JSON report
+          gitleaks detect \
+            --source . \
+            --no-git \
+            --report-format json \
+            --report-path reports/gitleaks_report.json || true
 
           # # SARIF report (for GitHub Security)
           # gitleaks detect \
