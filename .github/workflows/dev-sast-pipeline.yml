@@ -39,28 +39,35 @@ jobs:
       - name: Checkout main code (for push or pull_request)
         if: github.event_name != 'pull_request_target'
         uses: actions/checkout@v3
-        # with:
-        #   fetch-depth: 0  # Pull full history
+        with:
+          fetch-depth: 0  # Pull full history
 
-      # - name: Get changed files (push or PR)
-      #   id: changed-files
-      #   run: |
-      #     if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
-      #       echo "Detected pull_request_target event"
-      #       git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
-      #       files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
-      #     else
-      #       echo "Detected push event"
-      #       files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-      #     fi
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            echo "🔍 Detected PR scan (pull_request_target)..."
+            git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
+            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+          else
+            echo "📦 Detected push event..."
+            files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          fi
 
-      #     echo "files=${files}" >> $GITHUB_OUTPUT
+          echo "📁 Changed files:"
+          echo "$files"
 
-      # - name: Stop if no files changed
-      #   if: steps.changed-files.outputs.files == ''
-      #   run: |
-      #     echo "No changed files found. Skipping the scan."
-      #     exit 0
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$files" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+
+      - name: Stop if no files changed
+        if: steps.changed-files.outputs.files == ''
+        run: |
+          echo "🛑 No files changed. Skipping rest of the pipeline."
+          exit 0
+
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -212,12 +219,12 @@ jobs:
           sarif_file: reports/final_report.sarif
           category: ai-sast-dast-pipeline
       
-      - name: Comment on PR with LLM suggestions
-        if: github.event_name == 'pull_request_target'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          pip install requests
-          python comment_on_pr.py
+      # - name: Comment on PR with LLM suggestions
+      #   if: github.event_name == 'pull_request_target'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     GITHUB_REPOSITORY: ${{ github.repository }}
+      #     PR_NUMBER: ${{ github.event.pull_request.number }}
+      #   run: |
+      #     pip install requests
+      #     python comment_on_pr.py
