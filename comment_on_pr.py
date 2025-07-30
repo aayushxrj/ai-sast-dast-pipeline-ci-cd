@@ -19,6 +19,9 @@ pr_resp = requests.get(pr_url, headers=headers)
 pr_resp.raise_for_status()
 commit_sha = pr_resp.json()["head"]["sha"]
 
+# Ensure base branch is fetched
+subprocess.run(["git", "fetch", "origin", "main"], check=True)
+
 # Get diff of PR (unified=0 gives precise line numbers)
 diff_output = subprocess.run(
     ["git", "diff", "origin/main", commit_sha, "--unified=0"],
