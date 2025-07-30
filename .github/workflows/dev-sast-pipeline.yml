@@ -27,8 +27,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v3
       - name: Checkout PR branch (for pull_request_target)
         if: github.event_name == 'pull_request_target'
         uses: actions/checkout@v3
@@ -110,11 +108,6 @@ jobs:
             -ll -iii || true
 
 
-      # - name: Run Bandit (on changed files)
-      #   run: |
-      #     mkdir -p reports
-      #     bandit -x tests -f json -o reports/bandit_report.json -ll -iii ${{ steps.changes.outputs.files }} || true
-
       # - name: Run Bandit
       #   run: |
       #     # Create a 'reports' directory if it doesn't exist
@@ -143,16 +136,6 @@ jobs:
       #     sarif_file: reports/bandit_report.sarif
       #     category: bandit
       
-      # - name: Run Semgrep (on changed files)
-      #   run: |
-      #     mkdir -p reports
-      #     semgrep --config auto \
-      #             --exclude tests \
-      #             --json \
-      #             --output reports/semgrep_report.json \
-      #             ${{ steps.changes.outputs.files }} || true
-      #   env:
-      #     SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
       - name: Run Semgrep on changed files (excluding tests/)
         if: steps.changed-files.outputs.files != ''
@@ -237,15 +220,7 @@ jobs:
       #   with:
       #     sarif_file: reports/gitleaks_report.sarif
       #     category: gitleaks
-
-
-      # Makes the report downloadable from the Actions tab
-      - name: Upload Bandit, Semgrep and Gitleaks reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-reports
-          path: reports/
-              
+  
       
       - name: Combine SAST JSON reports
         run: python combine_reports.py
@@ -263,6 +238,13 @@ jobs:
 
       - name: Convert to SARIF
         run: python resolution2sarif.py
+
+      # Makes the report downloadable from the Actions tab
+      - name: Upload Bandit, Semgrep and Gitleaks reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: reports/
 
       - name: Upload final_report SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
