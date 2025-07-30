@@ -86,28 +86,27 @@ jobs:
       - name: Install Semgrep CLI
         run: pip install semgrep
 
-      # - name: Run Bandit (on changed files)
-      #   if: steps.changes.outputs.files != ''
-      #   run: |
-      #     mkdir -p reports
-      #     bandit -x tests -f json -o reports/bandit_report.json -ll -iii ${{ steps.changes.outputs.files }} || true
-
-      - name: Run Bandit
+      - name: Run Bandit (on changed files)
         run: |
-          # Create a 'reports' directory if it doesn't exist
           mkdir -p reports
+          bandit -x tests -f json -o reports/bandit_report.json -ll -iii ${{ steps.changes.outputs.files }} || true
+
+      # - name: Run Bandit
+      #   run: |
+      #     # Create a 'reports' directory if it doesn't exist
+      #     mkdir -p reports
       
-          # Run Bandit on the entire project directory (recursive)
-          # -x tests        → exclude the 'tests' folder
-          # -f json         → output the results in JSON format
-          # -o ...          → save the output to 'reports/bandit_report.json'
-          # -ll             → include low, medium, and high severity issues
-          # -iii            → show issue context lines in the report
-          bandit -r . \
-            -x tests \
-            -f json \
-            -o reports/bandit_report.json \
-            -ll -iii || true
+      #     # Run Bandit on the entire project directory (recursive)
+      #     # -x tests        → exclude the 'tests' folder
+      #     # -f json         → output the results in JSON format
+      #     # -o ...          → save the output to 'reports/bandit_report.json'
+      #     # -ll             → include low, medium, and high severity issues
+      #     # -iii            → show issue context lines in the report
+      #     bandit -r . \
+      #       -x tests \
+      #       -f json \
+      #       -o reports/bandit_report.json \
+      #       -ll -iii || true
           
       #     bandit -r . \
       #       -x tests \
@@ -120,17 +119,16 @@ jobs:
       #     sarif_file: reports/bandit_report.sarif
       #     category: bandit
       
-      # - name: Run Semgrep (on changed files)
-      #   if: steps.changes.outputs.files != ''
-      #   run: |
-      #     mkdir -p reports
-      #     semgrep --config auto \
-      #             --exclude tests \
-      #             --json \
-      #             --output reports/semgrep_report.json \
-      #             ${{ steps.changes.outputs.files }} || true
-      #   env:
-      #     SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+      - name: Run Semgrep (on changed files)
+        run: |
+          mkdir -p reports
+          semgrep --config auto \
+                  --exclude tests \
+                  --json \
+                  --output reports/semgrep_report.json \
+                  ${{ steps.changes.outputs.files }} || true
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
 
       # - name: Login to Semgrep
@@ -138,21 +136,21 @@ jobs:
       #   env:
       #     SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
       
-      - name: Run Semgrep via CLI
-        run: |
-          mkdir -p reports
+      # - name: Run Semgrep via CLI
+      #   run: |
+      #     mkdir -p reports
 
-          semgrep --config auto \
-                  --exclude tests \
-                  --json \
-                  --output reports/semgrep_report.json || true
-          
       #     semgrep --config auto \
       #             --exclude tests \
-      #             --sarif \
-      #             --output reports/semgrep_report.sarif || true   
-        env:
-            SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}           
+      #             --json \
+      #             --output reports/semgrep_report.json || true
+          
+      # #     semgrep --config auto \
+      # #             --exclude tests \
+      # #             --sarif \
+      # #             --output reports/semgrep_report.sarif || true   
+      #   env:
+      #       SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}           
 
       # - name: Upload Semgrep SARIF to GitHub Security tab
       #   uses: github/codeql-action/upload-sarif@v3
