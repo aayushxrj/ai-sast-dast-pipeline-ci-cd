@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import subprocess
+from collections import defaultdict
 
 GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 REPO = os.environ["GITHUB_REPOSITORY"]
@@ -25,7 +26,6 @@ diff_output = subprocess.run(
 ).stdout
 
 # Parse changed lines from diff
-from collections import defaultdict
 changed_lines = defaultdict(set)
 current_file = None
 for line in diff_output.splitlines():
@@ -41,6 +41,11 @@ for line in diff_output.splitlines():
                 count = int(parts[1]) if len(parts) > 1 else 1
                 for i in range(start, start + count):
                     changed_lines[current_file].add(i)
+
+# ✅ Debug output for changed lines
+print("📄 Detected changed lines:")
+for path, lines in changed_lines.items():
+    print(f"  {path}: {sorted(lines)}")
 
 # Only comment on changed lines
 comments = []
