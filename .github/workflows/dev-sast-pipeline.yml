@@ -35,6 +35,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0   # this is for the PR branch to have full history
 
       - name: Checkout main code (for push or pull_request)
         if: github.event_name != 'pull_request_target'
@@ -56,7 +57,7 @@ jobs:
 
             echo "📏 Comparing base (origin/$BASE_REF) with PR head commit ($HEAD_SHA)..."
             files=$(git diff --name-only origin/$BASE_REF...$HEAD_SHA)
-            
+
           else
             echo "📦 Detected push event..."
             files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
