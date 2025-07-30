@@ -48,7 +48,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
             echo "🔍 Detected PR scan (pull_request_target)..."
             git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
-            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...${{ github.event.pull_request.head.sha }})
           else
             echo "📦 Detected push event..."
             files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
