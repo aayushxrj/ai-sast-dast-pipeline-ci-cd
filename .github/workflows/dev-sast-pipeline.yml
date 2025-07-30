@@ -47,8 +47,16 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
             echo "🔍 Detected PR scan (pull_request_target)..."
-            git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
-            files=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...${{ github.event.pull_request.head.sha }})
+  
+            BASE_REF="${{ github.event.pull_request.base.ref }}"   # usually 'main'
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"   # latest PR commit
+
+            echo "Fetching base branch: $BASE_REF"
+            git fetch origin +refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF
+
+            echo "📏 Comparing base (origin/$BASE_REF) with PR head commit ($HEAD_SHA)..."
+            files=$(git diff --name-only origin/$BASE_REF...$HEAD_SHA)
+            
           else
             echo "📦 Detected push event..."
             files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
