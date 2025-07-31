@@ -262,7 +262,20 @@ jobs:
           pip install requests
           python comment_on_pr.py
 
-      - name: Notify Slack with security summary
+
+      - name: Notify Slack with security summary (PR)
+        if: github.event_name == 'pull_request_target'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: |
+          pip install requests dotenv
+          python notify_slack.py
+
+      - name: Notify Slack with security summary (push)
+        if: github.event_name != 'pull_request_target'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
