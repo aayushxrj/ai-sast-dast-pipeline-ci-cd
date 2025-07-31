@@ -3,6 +3,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+LLM_PROMPT_TEMPLATE = """
+You are an experienced application security engineer. Analyze the following code issue and provide a concise, actionable fix or mitigation. Your response should be clear, technically accurate, and suitable for inclusion in a professional security report.
+
+File: {file}
+Rule: {rule_id}
+Description: {message}
+Code Snippet:
+{code}
+
+Please provide your recommended fix or mitigation in 2-3 sentences.
+"""
+
 class GeminiResolver:
     def __init__(self):
         import google.generativeai as genai
@@ -10,8 +23,12 @@ class GeminiResolver:
         self.model = genai.GenerativeModel("gemini-2.5-flash-lite")
 
     def get_resolution(self, issue):
-        prompt = f"""You are a security expert. \
-Here is a code issue:\nFile: {issue['file']}\nRule: {issue['rule_id']}\nMessage: {issue['message']}\nCode:\n{issue['code']}\nSuggest a fix or mitigation in 2-3 sentences."""
+        prompt = LLM_PROMPT_TEMPLATE.format(
+            file=issue['file'],
+            rule_id=issue['rule_id'],
+            message=issue['message'],
+            code=issue['code']
+        )
         response = self.model.generate_content(prompt)
         return response.text.strip()
 
