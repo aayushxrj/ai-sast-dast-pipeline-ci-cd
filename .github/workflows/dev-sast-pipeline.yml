@@ -282,8 +282,9 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.sha }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_PUSH_AUTHOR: ${{ github.actor }}
+          GITHUB_PUSH_BRANCH: ${{ github.ref_name }}
         run: |
           pip install requests dotenv
           python notify_slack.py
