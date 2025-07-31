@@ -28,7 +28,8 @@ for issue in issues:
         sarif["runs"][0]["tool"]["driver"]["rules"].append({
             "id": rule_id,
             "name": rule_id,
-            "shortDescription": {"text": issue["message"][:120]},
+            # "shortDescription": {"text": issue["message"][:120]},
+            "shortDescription": {"text": rule_id},
             "fullDescription": {"text": issue["message"]},
             "help": {"text": issue["resolution"], "markdown": issue["resolution"]}
         })
