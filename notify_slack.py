@@ -21,6 +21,7 @@ def get_issues_count():
     except Exception:
         return 0
 
+
 def main():
     issues_count = get_issues_count()
     event_type = "PR" if GITHUB_EVENT_NAME == "pull_request_target" else "push"
