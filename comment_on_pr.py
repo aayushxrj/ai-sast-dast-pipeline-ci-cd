@@ -4,31 +4,36 @@ import requests
 import subprocess
 from collections import defaultdict
 
+# --- Setup ---
 GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 REPO = os.environ["GITHUB_REPOSITORY"]
 PR_NUMBER = os.environ["PR_NUMBER"]
 
-# Load detected issues
+# Load security issues from JSON
 with open("reports/resolution.json", encoding="utf-8") as f:
-    issues = json.load(f)["issues"]
+    issues = json.load(f).get("issues", [])
 
-# Get latest commit SHA
+# --- Fetch PR Info ---
 headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 pr_url = f"https://api.github.com/repos/{REPO}/pulls/{PR_NUMBER}"
 pr_resp = requests.get(pr_url, headers=headers)
 pr_resp.raise_for_status()
-commit_sha = pr_resp.json()["head"]["sha"]
 
-# Ensure base branch is fetched
-subprocess.run(["git", "fetch", "origin", "main"], check=True)
+pr_data = pr_resp.json()
+commit_sha = pr_data["head"]["sha"]
+base_sha = pr_data["base"]["sha"]
 
-# Get diff of PR (unified=0 gives precise line numbers)
+# --- Fetch diff between base and head ---
+subprocess.run(["git", "fetch", "origin", base_sha], check=True)
 diff_output = subprocess.run(
-    ["git", "diff", "origin/main", commit_sha, "--unified=0"],
+    ["git", "diff", base_sha, commit_sha, "--unified=0"],
     stdout=subprocess.PIPE, text=True
 ).stdout
 
-# Parse changed lines from diff
+# Optional debug
+print("📄 Raw git diff output (first 500 chars):\n", diff_output[:500])
+
+# --- Parse changed lines ---
 changed_lines = defaultdict(set)
 current_file = None
 for line in diff_output.splitlines():
@@ -37,20 +42,20 @@ for line in diff_output.splitlines():
     elif line.startswith("@@"):
         parts = line.split(" ")
         if len(parts) >= 3 and current_file:
-            new_file_range = parts[2]
-            if new_file_range.startswith("+"):
-                parts = new_file_range[1:].split(",")
-                start = int(parts[0])
-                count = int(parts[1]) if len(parts) > 1 else 1
+            new_range = parts[2]
+            if new_range.startswith("+"):
+                start_end = new_range[1:].split(",")
+                start = int(start_end[0])
+                count = int(start_end[1]) if len(start_end) > 1 else 1
                 for i in range(start, start + count):
                     changed_lines[current_file].add(i)
 
-# ✅ Debug output for changed lines
+# Debug: print changed lines
 print("📄 Detected changed lines:")
-for path, lines in changed_lines.items():
-    print(f"  {path}: {sorted(lines)}")
+for f, lines in changed_lines.items():
+    print(f"  {f}: {sorted(lines)}")
 
-# Only comment on changed lines
+# --- Filter issues for changed lines ---
 comments = []
 for issue in issues:
     path = issue["file"]
@@ -63,12 +68,11 @@ for issue in issues:
             "body": f'{issue["message"]}\n\n**Suggested Fix:**\n{issue["resolution"]}'
         })
 
-# If no eligible comments, skip review
+# --- Post review or skip ---
 if not comments:
     print("⚠️ No commentable issues found on changed lines.")
     exit(0)
 
-# Send PR review
 review_url = f"https://api.github.com/repos/{REPO}/pulls/{PR_NUMBER}/reviews"
 review_data = {
     "commit_id": commit_sha,
