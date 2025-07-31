@@ -251,7 +251,7 @@ jobs:
         with:
           sarif_file: reports/final_report.sarif
           category: ai-sast-dast-pipeline
-      
+
       - name: Comment on PR with LLM suggestions
         if: github.event_name == 'pull_request_target'
         env:
@@ -261,3 +261,13 @@ jobs:
         run: |
           pip install requests
           python comment_on_pr.py
+
+      - name: Notify Slack with security summary
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: |
+          pip install requests dotenv
+          python notify_slack.py
