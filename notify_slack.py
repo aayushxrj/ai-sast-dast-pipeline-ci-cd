@@ -11,7 +11,7 @@ GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
 GITHUB_EVENT_NAME = os.environ.get("GITHUB_EVENT_NAME")
 GITHUB_SERVER_URL = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
 
-# PR-specific (if pull_request_target)
+# PR-specific
 PR_NUMBER = os.environ.get("GITHUB_PR_NUMBER")
 PR_TITLE = os.environ.get("GITHUB_PR_TITLE")
 PR_AUTHOR = os.environ.get("GITHUB_PR_AUTHOR")
@@ -19,6 +19,7 @@ PR_AUTHOR = os.environ.get("GITHUB_PR_AUTHOR")
 # Push-specific
 PUSH_AUTHOR = os.environ.get("GITHUB_PUSH_AUTHOR")
 PUSH_BRANCH = os.environ.get("GITHUB_PUSH_BRANCH")
+GITHUB_SHA = os.environ.get("GITHUB_SHA")
 
 def get_issues_count():
     try:
@@ -32,20 +33,18 @@ def main():
     issues_count = get_issues_count()
     repo_url = f"{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}"
     security_tab_url = f"{repo_url}/security/code-scanning"
+    msg = ""
 
     if GITHUB_EVENT_NAME == "pull_request_target":
-        event_type = "PR"
-        msg = f"*Detected {issues_count} security issues in {event_type}.*\n"
-        if PR_NUMBER:
-            pr_url = f"{repo_url}/pull/{PR_NUMBER}"
-            msg += f"• PR: <{pr_url}|#{PR_NUMBER} - {PR_TITLE}> by `{PR_AUTHOR}`\n"
+        pr_url = f"{repo_url}/pull/{PR_NUMBER}"
+        msg += f":warning: *{issues_count} security issue(s) detected in Pull Request scan.*\n"
+        msg += f"> *PR:* <{pr_url}|#{PR_NUMBER} - {PR_TITLE}> by `{PR_AUTHOR}`\n"
     else:
-        event_type = "Push"
-        msg = f"*Detected {issues_count} security issues in {event_type}.*\n"
-        msg += f"• Branch: `{PUSH_BRANCH}`\n"
-        msg += f"• Author: `{PUSH_AUTHOR}`\n"
+        commit_url = f"{repo_url}/commit/{GITHUB_SHA}"
+        msg += f":warning: *{issues_count} security issue(s) detected in Push scan.*\n"
+        msg += f"> *Branch:* `{PUSH_BRANCH}` | *Author:* `{PUSH_AUTHOR}` | <{commit_url}|View Commit>\n"
 
-    msg += f"• View all security issues: <{security_tab_url}|GitHub Security Tab>\n"
+    msg += f"> *Security tab:* <{security_tab_url}|View all security issues>"
 
     payload = {"text": msg}
     resp = requests.post(SLACK_WEBHOOK_URL, json=payload)

@@ -277,12 +277,13 @@ jobs:
           python notify_slack.py
 
 
-      - name: Notify Slack with security summary (push)
+      - name: Notify Slack with security summary (Push)
         if: github.event_name != 'pull_request_target'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_SHA: ${{ github.sha }}
           GITHUB_PUSH_AUTHOR: ${{ github.actor }}
           GITHUB_PUSH_BRANCH: ${{ github.ref_name }}
         run: |
