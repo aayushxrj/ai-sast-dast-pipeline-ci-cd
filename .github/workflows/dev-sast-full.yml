@@ -1,9 +1,9 @@
 
-# To run this on a specific branch or PR, use:
+# To run this on a specific PR, use:
 # git fetch origin pull/<PR_NUMBER>/head:pr-<PR_NUMBER>
 # git push origin pr-<PR_NUMBER>
 
-name: Dev SAST Pipeline (Manual full run only for Push/PR)
+name: Dev SAST Pipeline (Manual full run)
 
 on:
   workflow_dispatch:
@@ -22,7 +22,6 @@ jobs:
       contents: read
       security-events: write
       actions: read
-      pull-requests: write
 
     steps:
       - name: Checkout branch
@@ -30,21 +29,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
-
-      - name: Get changed files vs main
-        id: changed-files
-        run: |
-          git fetch origin main
-
-          # Diff against main to find changes
-          files=$(git diff --name-only origin/main)
-
-          echo "📁 Changed files:"
-          echo "$files"
-
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          echo "$files" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -120,13 +104,3 @@ jobs:
         with:
           sarif_file: reports/final_report.sarif
           category: ai-sast-dast-pipeline
-
-      - name: Comment on PR with LLM suggestions (optional)
-        if: ${{ github.event.inputs.branch != 'main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_BRANCH: ${{ github.event.inputs.branch }}
-        run: |
-          pip install requests
-          python comment_on_pr.py
