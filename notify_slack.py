@@ -7,19 +7,23 @@ load_dotenv()
 
 RESOLUTION_PATH = "reports/resolution.json"
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
-GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
-GITHUB_EVENT_NAME = os.environ.get("GITHUB_EVENT_NAME")
-GITHUB_SERVER_URL = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
+GITHUB_REPOSITORY = os.getenv("GITHUB_REPOSITORY")
+GITHUB_EVENT_NAME = os.getenv("GITHUB_EVENT_NAME")
+GITHUB_SERVER_URL = os.getenv("GITHUB_SERVER_URL", "https://github.com")
 
 # PR-specific
-PR_NUMBER = os.environ.get("GITHUB_PR_NUMBER")
-PR_TITLE = os.environ.get("GITHUB_PR_TITLE")
-PR_AUTHOR = os.environ.get("GITHUB_PR_AUTHOR")
+PR_NUMBER = os.getenv("GITHUB_PR_NUMBER")
+PR_TITLE = os.getenv("GITHUB_PR_TITLE")
+PR_AUTHOR = os.getenv("GITHUB_PR_AUTHOR")
 
 # Push-specific
-PUSH_AUTHOR = os.environ.get("GITHUB_PUSH_AUTHOR")
-PUSH_BRANCH = os.environ.get("GITHUB_PUSH_BRANCH")
-GITHUB_SHA = os.environ.get("GITHUB_SHA")
+PUSH_AUTHOR = os.getenv("GITHUB_PUSH_AUTHOR")
+PUSH_BRANCH = os.getenv("GITHUB_PUSH_BRANCH")
+GITHUB_SHA = os.getenv("GITHUB_SHA")
+
+# Workflow run
+GITHUB_RUN_ID = os.getenv("GITHUB_RUN_ID")
+
 
 def get_issues_count():
     try:
@@ -29,10 +33,13 @@ def get_issues_count():
     except Exception:
         return 0
 
+
 def main():
     issues_count = get_issues_count()
     repo_url = f"{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}"
     security_tab_url = f"{repo_url}/security/code-scanning"
+    workflow_url = f"{repo_url}/actions/runs/{GITHUB_RUN_ID}"
+
     msg = ""
 
     if GITHUB_EVENT_NAME == "pull_request_target":
@@ -44,7 +51,8 @@ def main():
         msg += f":warning: *{issues_count} security issue(s) detected in Push scan.*\n"
         msg += f"> *Branch:* `{PUSH_BRANCH}` | *Author:* `{PUSH_AUTHOR}` | <{commit_url}|View Commit>\n"
 
-    msg += f"> *Security tab:* <{security_tab_url}|View all security issues>"
+    msg += f"> *Security tab:* <{security_tab_url}|View all security issues>\n"
+    msg += f"> *Artifacts:* <{workflow_url}|Download scan reports>"
 
     payload = {"text": msg}
     resp = requests.post(SLACK_WEBHOOK_URL, json=payload)
@@ -52,6 +60,7 @@ def main():
         print(f"Failed to send Slack notification: {resp.text}")
     else:
         print("✅ Slack notification sent.")
+
 
 if __name__ == "__main__":
     main()
