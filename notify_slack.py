@@ -8,11 +8,14 @@ load_dotenv()
 RESOLUTION_PATH = "reports/resolution.json"
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
-GITHUB_SHA = os.environ.get("GITHUB_SHA")
 GITHUB_EVENT_NAME = os.environ.get("GITHUB_EVENT_NAME")
 GITHUB_SERVER_URL = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
 
-# Load issues count
+# PR-specific metadata
+PR_NUMBER = os.environ.get("GITHUB_PR_NUMBER")
+PR_TITLE = os.environ.get("GITHUB_PR_TITLE")
+PR_AUTHOR = os.environ.get("GITHUB_PR_AUTHOR")
+
 def get_issues_count():
     try:
         with open(RESOLUTION_PATH, encoding="utf-8") as f:
@@ -21,20 +24,20 @@ def get_issues_count():
     except Exception:
         return 0
 
-
 def main():
     issues_count = get_issues_count()
-    event_type = "PR" if GITHUB_EVENT_NAME == "pull_request_target" else "push"
     repo_url = f"{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}"
     security_tab_url = f"{repo_url}/security/code-scanning"
-    commit_url = f"{repo_url}/commit/{GITHUB_SHA}"
 
-    msg = (
-        f"*Detected {issues_count} security issues in {event_type}.*\n"
-        f"\n"
-        f"• View all security issues: <{security_tab_url}|GitHub Security Tab>\n"
-        f"• View commit: <{commit_url}|{GITHUB_SHA[:7]}>\n"
-    )
+    event_type = "PR" if GITHUB_EVENT_NAME == "pull_request_target" else "Push"
+
+    msg = f"*Detected {issues_count} security issues in {event_type}.*\n"
+
+    if PR_NUMBER:
+        pr_url = f"{repo_url}/pull/{PR_NUMBER}"
+        msg += f"• PR: <{pr_url}|#{PR_NUMBER} - {PR_TITLE}> by `{PR_AUTHOR}`\n"
+
+    msg += f"• View all security issues: <{security_tab_url}|GitHub Security Tab>\n"
 
     payload = {"text": msg}
     resp = requests.post(SLACK_WEBHOOK_URL, json=payload)

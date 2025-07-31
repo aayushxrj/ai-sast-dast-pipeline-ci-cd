@@ -268,11 +268,14 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_PR_TITLE: ${{ github.event.pull_request.title }}
+          GITHUB_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           pip install requests dotenv
           python notify_slack.py
+
 
       - name: Notify Slack with security summary (push)
         if: github.event_name != 'pull_request_target'
