@@ -73,6 +73,22 @@ def read_file():
     with open(filename, "r") as f:  # ⚠️ Path traversal
         content = f.read()
     return content
+    
+@app.route("/sql", methods=["GET"])
+def sql_injection():
+    # ❗ SQL Injection vulnerability (for SAST/DAST)
+    username = request.args.get("username")
+    query = f"SELECT * FROM users WHERE username = '{username}'"  # ⚠️ SQL Injection
+    # Simulate execution (do not actually run this in production)
+    return f"Executed query: {query}"
+
+@app.route("/readfile", methods=["GET"])
+def read_file():
+    # ❗ Path traversal vulnerability (for SAST/DAST)
+    filename = request.args.get("file")
+    with open(filename, "r") as f:  # ⚠️ Path traversal
+        content = f.read()
+    return content
 
 
 if __name__ == "__main__":
