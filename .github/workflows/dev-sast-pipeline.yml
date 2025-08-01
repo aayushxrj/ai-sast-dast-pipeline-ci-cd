@@ -1,20 +1,29 @@
 name: Dev SAST Pipeline
 
 on:
-    push:
-      branches: [ "main" ]
-  
-    # Leave this empty (i.e., pull_request:) to trigger on PRs to all branches
-    # pull_request:
-    #   branches: [ "main" ]  
+  # Trigger on push events to all branches
+  push:
+    branches: [ "**" ]
+    # Note: GitHub Actions does not allow both 'branches' and 'branches-ignore' together.
+    # To exclude specific branches, comment out 'branches' above and use 'branches-ignore' instead.
+    # branches-ignore:
+    #   - gh-pages
 
-    pull_request_target:
-      branches: [ "main" ]  # Only triggers on PRs targeting 'main'
-  
-    # Scheduled run every Friday at 12:00 PM IST (6:30 AM UTC)
-    # schedule:
-    #   - cron: '30 6 * * 5'
-  
+  # Trigger on pull requests to all branches with access to secrets
+  pull_request_target:
+    branches: [ "**" ]
+    types: [opened, synchronize, reopened]
+    # Note: Only one of 'branches' or 'branches-ignore' can be used at a time
+    # branches-ignore:
+      # - gh-pages
+
+  # Allow manual trigger via GitHub Actions UI
+  workflow_dispatch:
+
+  # Scheduled daily scan at midnight UTC
+  schedule:
+    - cron: '0 0 * * *'
+
 jobs:
   sast:
     permissions:
