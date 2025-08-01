@@ -9,9 +9,9 @@ on:
     # branches-ignore:
     #   - gh-pages
 
-  # Trigger on pull requests to all branches with access to secrets
+  # Trigger on pull requests to the main branche with access to secrets
   pull_request_target:
-    branches: [ "**" ]
+    branches: [ "main" ]
     types: [opened, synchronize, reopened]
     # Note: Only one of 'branches' or 'branches-ignore' can be used at a time
     # branches-ignore:
