@@ -57,6 +57,13 @@ def ssrf():
     response = requests.get(url)  # ⚠️ SSRF
     return response.text
 
+@app.route("/ssrf", methods=["GET"])
+def ssrf():
+    # ❗ SSRF vulnerability (Semgrep)
+    url = request.args.get("url")
+    response = requests.get(url)  # ⚠️ SSRF
+    return response.text
+
     
 
 if __name__ == "__main__":
