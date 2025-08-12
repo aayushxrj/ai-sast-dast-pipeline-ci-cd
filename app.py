@@ -63,8 +63,13 @@ def ssrf():
     url = request.args.get("url")
     response = requests.get(url)  # ⚠️ SSRF
     return response.text
+@app.route("/jwt", methods=["GET"])
+def insecure_jwt():
+    # ❗ Insecure JWT with 'none' algorithm (Semgrep)
+    payload = {"user": "admin"}
+    token = jwt.encode(payload, key=None, algorithm="none")
+    return token
 
-    
 
 if __name__ == "__main__":
     app.run(debug=True)
